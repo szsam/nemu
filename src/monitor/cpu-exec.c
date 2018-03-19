@@ -1,5 +1,6 @@
 #include "nemu.h"
 #include "monitor/monitor.h"
+#include "monitor/watchpoint.h"
 
 /* The assembly code of instructions executed is only output to the screen
  * when the number of instructions executed is less than this value.
@@ -40,6 +41,7 @@ void cpu_exec(uint64_t n) {
 
 #ifdef DEBUG
     /* TODO: check watchpoints here. */
+	check_watchpoints();	
 
 #endif
 
@@ -53,12 +55,11 @@ void cpu_exec(uint64_t n) {
         printflog("\33[1;31mnemu: HIT %s TRAP\33[0m at eip = 0x%08x\n\n",
             (cpu.eax == 0 ? "GOOD" : "BAD"), cpu.eip - 1);
         monitor_statistic();
-        return;
       }
       else if (nemu_state == NEMU_ABORT) {
         printflog("\33[1;31mnemu: ABORT\33[0m at eip = 0x%08x\n\n", cpu.eip);
-        return;
       }
+	  return;
     }
   }
 
