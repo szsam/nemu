@@ -32,8 +32,23 @@ typedef struct {
         };
     };
 
+    union {
+        struct {
+           unsigned CF      :1;
+           unsigned         :1;
+           unsigned PF      :1; 
+           unsigned         :3;
+           unsigned ZF      :1; 
+           unsigned SF      :1; 
+           unsigned         :1;
+           unsigned IF      :1; 
+           unsigned DF      :1; 
+           unsigned OF      :1; 
+        };
+        uint32_t EFLAGS;
+    };
 
-  vaddr_t eip;
+    vaddr_t eip;
 
 } CPU_state;
 

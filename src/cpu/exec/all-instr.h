@@ -2,6 +2,9 @@
 
 make_EHelper(mov);
 make_EHelper(call);
+make_EHelper(push);
+make_EHelper(xor);
+make_EHelper(sub);
 
 make_EHelper(operand_size);
 
