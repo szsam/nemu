@@ -107,7 +107,7 @@ static inline void restart() {
 #endif
 
   /* Initialize EFLAGS register */
-  cpu.EFLAGS = 0x2;
+  cpu.eflags.val = 0x2;
 }
 
 static inline void parse_args(int argc, char *argv[]) {

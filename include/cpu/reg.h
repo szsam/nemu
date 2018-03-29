@@ -45,8 +45,8 @@ typedef struct {
            unsigned DF      :1; 
            unsigned OF      :1; 
         };
-        uint32_t EFLAGS;
-    };
+        uint32_t val;
+    }eflags;
 
     vaddr_t eip;
 

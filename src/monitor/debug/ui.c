@@ -165,13 +165,13 @@ static int cmd_p(char *args) {
 	sscanf(args, "%7s", tok);
 	if (!strcmp(tok, "$eflags")) {
 		char flags[32] = "[ ";
-//		if (cpu.CF) strcat(flags, "CF ");
-//		if (cpu.PF) strcat(flags, "PF ");
-//		if (cpu.ZF) strcat(flags, "ZF ");
-//		if (cpu.SF) strcat(flags, "SF ");
-//		if (cpu.IF) strcat(flags, "IF ");
-//		if (cpu.DF) strcat(flags, "DF ");
-//		if (cpu.OF) strcat(flags, "OF ");
+		if (cpu.eflags.CF) strcat(flags, "CF ");
+		if (cpu.eflags.PF) strcat(flags, "PF ");
+		if (cpu.eflags.ZF) strcat(flags, "ZF ");
+		if (cpu.eflags.SF) strcat(flags, "SF ");
+		if (cpu.eflags.IF) strcat(flags, "IF ");
+		if (cpu.eflags.DF) strcat(flags, "DF ");
+		if (cpu.eflags.OF) strcat(flags, "OF ");
 		strcat(flags, "]");
 		printf("%s\n", flags);
 	}
