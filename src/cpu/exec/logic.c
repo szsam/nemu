@@ -25,13 +25,21 @@ make_EHelper(and) {
 make_EHelper(xor) {
   rtl_xor(&id_dest->val, &id_src->val, &id_dest->val);
   operand_write(id_dest, &id_dest->val);
-  // TODO update EFLAGS
+
+  rtl_set_CF(&tzero);
+  rtl_set_OF(&tzero);
+  rtl_update_ZFSF(&id_dest->val, id_dest->width);
 
   print_asm_template2(xor);
 }
 
 make_EHelper(or) {
-  TODO();
+  rtl_or(&id_dest->val, &id_src->val, &id_dest->val);
+  operand_write(id_dest, &id_dest->val);
+
+  rtl_set_CF(&tzero);
+  rtl_set_OF(&tzero);
+  rtl_update_ZFSF(&id_dest->val, id_dest->width);
 
   print_asm_template2(or);
 }
