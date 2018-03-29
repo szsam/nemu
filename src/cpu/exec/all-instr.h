@@ -9,6 +9,7 @@ make_EHelper(movzx);
 make_EHelper(call);
 make_EHelper(ret);
 make_EHelper(jcc);
+make_EHelper(jmp);
 
 make_EHelper(xor);
 make_EHelper(and);
@@ -27,6 +28,9 @@ make_EHelper(sbb);
 make_EHelper(cmp);
 make_EHelper(inc);
 make_EHelper(dec);
+make_EHelper(imul1);
+make_EHelper(imul2);
+make_EHelper(imul3);
 
 make_EHelper(operand_size);
 
