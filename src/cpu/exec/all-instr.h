@@ -13,14 +13,19 @@ make_EHelper(jcc);
 make_EHelper(xor);
 make_EHelper(and);
 make_EHelper(or);
+make_EHelper(not);
 make_EHelper(setcc);
 make_EHelper(test);
+make_EHelper(sar);
+make_EHelper(shl);
+make_EHelper(shr);
 
 make_EHelper(add);
 make_EHelper(adc);
 make_EHelper(sub);
 make_EHelper(sbb);
 make_EHelper(cmp);
+make_EHelper(dec);
 
 make_EHelper(operand_size);
 

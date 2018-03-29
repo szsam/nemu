@@ -69,7 +69,12 @@ make_EHelper(inc) {
 }
 
 make_EHelper(dec) {
-  TODO();
+  rtl_li(&id_src->val, 1);
+  rtl_sub(&t0, &id_dest->val, &id_src->val);
+  operand_write(id_dest, &t0);
+
+  rtl_update_ZFSF(&t0, id_dest->width);
+  // TODO update OF
 
   print_asm_template1(dec);
 }
