@@ -6,6 +6,7 @@ make_EHelper(mov) {
 }
 
 make_EHelper(push) {
+  assert(!decoding.is_operand_size_16);
   rtl_push(&id_dest->val);
 
   print_asm_template1(push);
@@ -31,7 +32,9 @@ make_EHelper(popa) {
 }
 
 make_EHelper(leave) {
-  TODO();
+  assert(!decoding.is_operand_size_16);
+  rtl_mv(&cpu.esp, &cpu.ebp);
+  rtl_pop(&cpu.ebp);
 
   print_asm("leave");
 }
@@ -41,7 +44,8 @@ make_EHelper(cltd) {
     TODO();
   }
   else {
-    TODO();
+	rtl_mv(&cpu.edx, &cpu.eax);
+	rtl_sari(&cpu.edx, &cpu.edx, 31);
   }
 
   print_asm(decoding.is_operand_size_16 ? "cwtl" : "cltd");

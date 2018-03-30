@@ -5,11 +5,16 @@ make_EHelper(push);
 make_EHelper(pop);
 make_EHelper(lea);
 make_EHelper(movzx);
+make_EHelper(movsx);
+make_EHelper(cltd);
+make_EHelper(leave);
 
 make_EHelper(call);
+make_EHelper(call_rm);
 make_EHelper(ret);
 make_EHelper(jcc);
 make_EHelper(jmp);
+make_EHelper(jmp_rm);
 
 make_EHelper(xor);
 make_EHelper(and);
@@ -31,6 +36,9 @@ make_EHelper(dec);
 make_EHelper(imul1);
 make_EHelper(imul2);
 make_EHelper(imul3);
+make_EHelper(mul);
+make_EHelper(idiv);
+make_EHelper(div);
 
 make_EHelper(operand_size);
 

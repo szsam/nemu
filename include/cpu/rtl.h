@@ -149,7 +149,7 @@ static inline void rtl_sr(int r, int width, const rtlreg_t* src1) {
 
 static inline void rtl_mv(rtlreg_t* dest, const rtlreg_t *src1) {
   // dest <- src1
-  TODO();
+  *dest = *src1;
 }
 
 void cc_gen_ZF(rtlreg_t *);
