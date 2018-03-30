@@ -105,6 +105,9 @@ static inline void restart() {
 #ifdef DIFF_TEST
   init_qemu_reg();
 #endif
+
+  /* Initialize EFLAGS register */
+  cpu.eflags.val = 0x2;
 }
 
 static inline void parse_args(int argc, char *argv[]) {
