@@ -46,7 +46,7 @@ make_group(gp1,
 
   /* 0xc0, 0xc1, 0xd0, 0xd1, 0xd2, 0xd3 */
 make_group(gp2,
-    EMPTY, EMPTY, EMPTY, EMPTY,
+    EX(rol), EMPTY, EMPTY, EMPTY,
     EX(shl), EX(shr), EMPTY, EX(sar))
 
   /* 0xf6, 0xf7 */
@@ -98,7 +98,7 @@ opcode_entry opcode_table [512] = {
   /* 0x5c */	IDEX(r, pop), IDEX(r, pop), IDEX(r, pop), IDEX(r, pop), 
   /* 0x60 */	EMPTY, EMPTY, EMPTY, EMPTY,
   /* 0x64 */	EMPTY, EMPTY, EX(operand_size), EMPTY,
-  /* 0x68 */	IDEX(I, push), IDEX(I_E2G, imul3), IDEXW(push_SI, push, 1), EMPTY,
+  /* 0x68 */	IDEX(I, push), IDEX(I_E2G, imul3), IDEXW(push_SI, push, 1), IDEX(Ib_E2G, imul3),
   /* 0x6c */	EMPTY, EMPTY, EMPTY, EMPTY,
   /* 0x70 */	IDEXW(J, jcc, 1), IDEXW(J, jcc, 1), IDEXW(J, jcc, 1), IDEXW(J, jcc, 1), 
   /* 0x74 */	IDEXW(J, jcc, 1), IDEXW(J, jcc, 1), IDEXW(J, jcc, 1), IDEXW(J, jcc, 1), 
