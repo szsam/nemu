@@ -156,7 +156,8 @@ void difftest_step(uint32_t eip) {
   diff = (i < 8) || r.eip != cpu.eip;
 
   if (diff) {
-    nemu_state = NEMU_END;
+    // nemu_state = NEMU_END;
+    nemu_state = NEMU_ABORT;
 	Log("DIFFERENT");
   }
 }
