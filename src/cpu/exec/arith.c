@@ -85,7 +85,14 @@ make_EHelper(dec) {
 }
 
 make_EHelper(neg) {
-  TODO();
+  rtl_setrelop(RELOP_EQ, &t1, &id_dest->val, &tzero);
+  rtl_not(&t1);
+  rtl_set_CF(&t1);
+
+  rtl_sub(&id_dest->val, &tzero, &id_dest->val);
+  operand_write(id_dest, &id_dest->val);
+
+  rtl_update_ZFSF(&id_dest->val, id_dest->width);
 
   print_asm_template1(neg);
 }

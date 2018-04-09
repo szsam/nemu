@@ -87,3 +87,17 @@ make_EHelper(not) {
 
   print_asm_template1(not);
 }
+
+make_EHelper(rol) {
+  // dest <- (dest << src) | (dest >> (32 -src))
+  rtl_shl(&t0, &id_dest->val, &id_src->val);
+  rtl_li(&t1, 32);
+  rtl_sub(&t1, &t1, &id_src->val); // t1 <- (32-src)
+  rtl_shr(&t1, &id_dest->val, &t1);
+  rtl_or(&id_dest->val, &t0, &t1);
+  operand_write(id_dest, &id_dest->val);
+
+  // unnecessary to update CF and OF in NEMU
+
+  print_asm_template2(rol);
+}

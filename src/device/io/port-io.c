@@ -39,7 +39,8 @@ void* add_pio_map(ioaddr_t addr, int len, pio_callback_t callback) {
   return pio_space + addr;
 }
 
-static inline uint32_t pio_read_common(ioaddr_t addr, int len) {
+/* CPU interface */
+uint32_t pio_read(ioaddr_t addr, int len) {
   assert(addr + len - 1 < PORT_IO_SPACE_MAX);
   pio_callback(addr, len, false);		// prepare data to read
   switch (len) {
@@ -50,7 +51,7 @@ static inline uint32_t pio_read_common(ioaddr_t addr, int len) {
   }
 }
 
-static inline void pio_write_common(ioaddr_t addr, uint32_t data, int len) {
+void pio_write(ioaddr_t addr, uint32_t data, int len) {
   assert(addr + len - 1 < PORT_IO_SPACE_MAX);
   switch (len) {
     case 4: *(uint32_t *)(pio_space + addr) = data; break;
@@ -61,27 +62,27 @@ static inline void pio_write_common(ioaddr_t addr, uint32_t data, int len) {
   pio_callback(addr, len, true);
 }
 
-/* CPU interface */
-uint32_t pio_read_l(ioaddr_t addr) {
-  return pio_read_common(addr, 4);
-}
-
-uint32_t pio_read_w(ioaddr_t addr) {
-  return pio_read_common(addr, 2);
-}
-
-uint32_t pio_read_b(ioaddr_t addr) {
-  return pio_read_common(addr, 1);
-}
-
-void pio_write_l(ioaddr_t addr, uint32_t data) {
-  pio_write_common(addr, data, 4);
-}
-
-void pio_write_w(ioaddr_t addr, uint32_t data) {
-  pio_write_common(addr, data, 2);
-}
-
-void pio_write_b(ioaddr_t addr, uint32_t data) {
-  pio_write_common(addr, data, 1);
-}
+// /* CPU interface */
+// uint32_t pio_read_l(ioaddr_t addr) {
+//   return pio_read_common(addr, 4);
+// }
+// 
+// uint32_t pio_read_w(ioaddr_t addr) {
+//   return pio_read_common(addr, 2);
+// }
+// 
+// uint32_t pio_read_b(ioaddr_t addr) {
+//   return pio_read_common(addr, 1);
+// }
+// 
+// void pio_write_l(ioaddr_t addr, uint32_t data) {
+//   pio_write_common(addr, data, 4);
+// }
+// 
+// void pio_write_w(ioaddr_t addr, uint32_t data) {
+//   pio_write_common(addr, data, 2);
+// }
+// 
+// void pio_write_b(ioaddr_t addr, uint32_t data) {
+//   pio_write_common(addr, data, 1);
+// }

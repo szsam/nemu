@@ -1,4 +1,5 @@
 #include "cpu/exec.h"
+#include "device/port-io.h"
 
 void diff_test_skip_qemu();
 void diff_test_skip_nemu();
@@ -41,17 +42,18 @@ make_EHelper(iret) {
   print_asm("iret");
 }
 
-uint32_t pio_read_l(ioaddr_t);
-uint32_t pio_read_w(ioaddr_t);
-uint32_t pio_read_b(ioaddr_t);
-void pio_write_l(ioaddr_t, uint32_t);
-void pio_write_w(ioaddr_t, uint32_t);
-void pio_write_b(ioaddr_t, uint32_t);
+// uint32_t pio_read_l(ioaddr_t);
+// uint32_t pio_read_w(ioaddr_t);
+// uint32_t pio_read_b(ioaddr_t);
+// void pio_write_l(ioaddr_t, uint32_t);
+// void pio_write_w(ioaddr_t, uint32_t);
+// void pio_write_b(ioaddr_t, uint32_t);
 
 extern bool diff_test_fix;
 
 make_EHelper(in) {
-  TODO();
+  t0 = pio_read(id_src->val, id_dest->width);
+  operand_write(id_dest, &t0);
 
 #if defined(DIFF_TEST)
   diff_test_skip_qemu();
@@ -61,7 +63,7 @@ make_EHelper(in) {
 }
 
 make_EHelper(out) {
-  TODO();
+  pio_write(id_dest->val, id_src->val, id_src->width);
 
 #if defined(DIFF_TEST)
   diff_test_skip_qemu();
