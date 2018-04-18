@@ -38,6 +38,14 @@ make_EHelper(ret) {
   print_asm("ret");
 }
 
+make_EHelper(ret_i) {
+  rtl_pop(&t0);
+  rtl_jr(&t0);
+  rtl_add(&cpu.esp, &cpu.esp, &id_dest->val);
+
+  print_asm("ret");
+}
+
 make_EHelper(call_rm) {
   rtl_push(eip);
   rtl_j(id_dest->val);
