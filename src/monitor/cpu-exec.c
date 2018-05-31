@@ -1,3 +1,5 @@
+#include <inttypes.h>
+
 #include "nemu.h"
 #include "monitor/monitor.h"
 #include "monitor/watchpoint.h"
@@ -20,7 +22,7 @@ void nr_guest_instr_add(uint32_t n) {
 }
 
 void monitor_statistic() {
-  Log("total guest instructions = %llu", g_nr_guest_instr);
+  Log("total guest instructions = %" PRIu64, g_nr_guest_instr);
 }
 
 /* Simulate how the CPU works. */
