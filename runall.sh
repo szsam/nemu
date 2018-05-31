@@ -6,7 +6,7 @@ echo "compiling NEMU..."
 if make &> /dev/null; then
   echo "NEMU compile OK"
 else
-  echo "testcases compile error... exit..."
+  echo "NEMU compile error... exit..."
   exit
 fi
 
