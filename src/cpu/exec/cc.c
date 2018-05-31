@@ -14,13 +14,27 @@ void rtl_setcc(rtlreg_t* dest, uint8_t subcode) {
   // TODO: Query EFLAGS to determine whether the condition code is satisfied.
   // dest <- ( cc is satisfied ? 1 : 0)
   switch (subcode & 0xe) {
-    case CC_O: *dest = cpu.eflags.OF; break;
-    case CC_B: *dest = cpu.eflags.CF; break;
-    case CC_E: *dest = cpu.eflags.ZF; break;
-    case CC_BE: *dest = (cpu.eflags.ZF || cpu.eflags.CF); break;
-    case CC_S: *dest = cpu.eflags.SF; break;
-    case CC_L: *dest = (cpu.eflags.SF != cpu.eflags.OF); break;
-    case CC_LE: *dest = (cpu.eflags.ZF || (cpu.eflags.SF != cpu.eflags.OF)); break;
+    case CC_O: rtl_get_OF(dest); break;
+    case CC_B: rtl_get_CF(dest); break;
+    case CC_E: rtl_get_ZF(dest); break;
+    case CC_BE: // *dest = (cpu.eflags.ZF || cpu.eflags.CF); break;
+		rtl_get_ZF(&t0);
+		rtl_get_CF(&t1);
+		rtl_or(dest, &t0, &t1);
+		break;
+    case CC_S: rtl_get_SF(dest);  break;
+    case CC_L: // *dest = (cpu.eflags.SF != cpu.eflags.OF); break;
+		rtl_get_SF(&t0);
+		rtl_get_OF(&t1);
+		rtl_xor(dest, &t0, &t1);
+		break;
+    case CC_LE: // *dest = (cpu.eflags.ZF || (cpu.eflags.SF != cpu.eflags.OF)); break;
+		rtl_get_SF(&t0);
+		rtl_get_OF(&t1);
+		rtl_xor(&t0, &t0, &t1);
+		rtl_get_ZF(&t1); 
+		rtl_or(dest, &t0, &t1);
+		break;
     default: panic("should not reach here");
     case CC_P: panic("n86 does not have PF");
   }
