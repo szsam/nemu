@@ -1,7 +1,9 @@
 #ifndef __RTL_WRAPPER_H__
 #define __RTL_WRAPPER_H__
 
-#define RTL_PREFIX interpret
+#include "macro.h"
+
+#define RTL_PREFIX generate
 
 #define rtl_j         concat3(RTL_PREFIX, _, rtl_j       )
 #define rtl_jr        concat3(RTL_PREFIX, _, rtl_jr      )
@@ -54,5 +56,13 @@
 #define rtl_sr_w      concat3(RTL_PREFIX, _, rtl_sr_w    )
 #define rtl_sr_b      concat3(RTL_PREFIX, _, rtl_sr_b    )
 #define rtl_hostcall  concat3(RTL_PREFIX, _, rtl_hostcall)
+#define rtl_set_CF    concat3(RTL_PREFIX, _, rtl_set_CF  )
+#define rtl_set_OF    concat3(RTL_PREFIX, _, rtl_set_OF  )
+#define rtl_set_ZF    concat3(RTL_PREFIX, _, rtl_set_ZF  )
+#define rtl_set_SF    concat3(RTL_PREFIX, _, rtl_set_SF  )
+#define rtl_get_CF    concat3(RTL_PREFIX, _, rtl_get_CF  )
+#define rtl_get_OF    concat3(RTL_PREFIX, _, rtl_get_OF  )
+#define rtl_get_ZF    concat3(RTL_PREFIX, _, rtl_get_ZF  )
+#define rtl_get_SF    concat3(RTL_PREFIX, _, rtl_get_SF  )
 
 #endif

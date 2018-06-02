@@ -2,130 +2,142 @@
 #define __CPU_RTL_H__
 
 #include "nemu.h"
-#include "util/c_op.h"
+// #include "util/c_op.h"
 #include "cpu/relop.h"
 #include "cpu/rtl-wrapper.h"
+// #include "cpu/rtl-generate.h"
+#include "util/list.h"
 
 extern rtlreg_t t0, t1, t2, t3, at;
 extern const rtlreg_t tzero;
 
-void decoding_set_jmp(bool is_jmp);
-bool interpret_relop(uint32_t relop, const rtlreg_t src1, const rtlreg_t src2);
+typedef enum {
+	J, JR, JRELOP, SETRELOP, EXIT, LI, LM, SM, 
+	LR_L, LR_W, LR_B, SR_L, SR_W, SR_B,
+
+	ADD, SUB, AND, OR, XOR, SHL, SHR, SAR, 
+	MUL_LO, MUL_HI, IMUL_LO, IMUL_HI,
+	DIV_Q, DIV_R, IDIV_Q, IDIV_R,
+
+	ADDI, SUBI, ANDI, ORI, XORI, SHLI, SHRI, SARI, 
+	MUL_LOI, MUL_HII, IMUL_LOI, IMUL_HII,
+	DIV_QI, DIV_RI, IDIV_QI, IDIV_RI,
+
+	SET_CF, SET_OF, SET_ZF, SET_SF,
+	GET_CF, GET_OF, GET_ZF, GET_SF,
+} RTLInstrType;
+
+typedef struct  {
+	RTLInstrType type;
+
+	union {
+		struct { vaddr_t target; }j;
+		struct { rtlreg_t *target; }jr;
+		struct { 
+			uint32_t relop;
+			const rtlreg_t *src1; 
+			const rtlreg_t *src2; 
+			vaddr_t target; 
+		}jrelop;
+		struct {
+			uint32_t relop; 
+			rtlreg_t *dest; 
+			const rtlreg_t *src1; 
+			const rtlreg_t *src2; 
+		}setrelop;
+		struct { int state; }exit;
+		struct { rtlreg_t *dest; uint32_t imm; }li;
+		struct { rtlreg_t *dest; const rtlreg_t* addr; int len; }lm;
+		struct { const rtlreg_t *addr; int len; const rtlreg_t* src1; }sm;
+		struct { rtlreg_t* dest; int r; }lr;
+		struct { int r; const rtlreg_t* src1; }sr;
+
+		// arith/logic
+		struct { rtlreg_t* dest; const rtlreg_t* src1; const rtlreg_t* src2; }alu;
+
+		// arith/logic immediate
+		struct { rtlreg_t* dest; const rtlreg_t* src1; int imm; }alui;
+
+		struct { const rtlreg_t* src; }set_eflags;
+		struct { rtlreg_t* dest; }get_eflags;
+	};
+
+	struct list_head list;
+}RTLInstr;
 
 /* RTL basic instructions */
 
-static inline void interpret_rtl_j(vaddr_t target) {
-  cpu.eip = target;
-  decoding_set_jmp(true);
-}
+void generate_rtl_j(vaddr_t target);
 
-static inline void interpret_rtl_jr(rtlreg_t *target) {
-  cpu.eip = *target;
-  decoding_set_jmp(true);
-}
+void generate_rtl_jr(rtlreg_t *target);
 
-static inline void interpret_rtl_jrelop(uint32_t relop,
-    const rtlreg_t *src1, const rtlreg_t *src2, vaddr_t target) {
-  bool is_jmp = interpret_relop(relop, *src1, *src2);
-  if (is_jmp) cpu.eip = target;
-  decoding_set_jmp(is_jmp);
-}
+void generate_rtl_jrelop(uint32_t relop,
+    const rtlreg_t *src1, const rtlreg_t *src2, vaddr_t target);
 
-static inline void interpret_rtl_setrelop(uint32_t relop, rtlreg_t *dest,
-    const rtlreg_t *src1, const rtlreg_t *src2) {
-  *dest = interpret_relop(relop, *src1, *src2);
-}
+void generate_rtl_setrelop(uint32_t relop, rtlreg_t *dest,
+    const rtlreg_t *src1, const rtlreg_t *src2);
 
-void interpret_rtl_exit(int state);
+void generate_rtl_exit(int state);
 
-static inline void interpret_rtl_li(rtlreg_t* dest, uint32_t imm) {
-  *dest = imm;
-}
+void generate_rtl_li(rtlreg_t* dest, uint32_t imm);
 
-#define make_rtl_arith_logic(name) \
-  static inline void concat(interpret_rtl_, name) (rtlreg_t* dest, const rtlreg_t* src1, const rtlreg_t* src2) { \
-    *dest = concat(c_, name) (*src1, *src2); \
-  } \
-  static inline void concat3(interpret_rtl_, name, i) (rtlreg_t* dest, const rtlreg_t* src1, int imm) { \
-    *dest = concat(c_, name) (*src1, imm); \
-  }
+#define make_generate_rtl_arith_logic(name) \
+  void concat(generate_rtl_, name) (rtlreg_t* dest, const rtlreg_t* src1, const rtlreg_t* src2); \
+  void concat3(generate_rtl_, name, i) (rtlreg_t* dest, const rtlreg_t* src1, int imm);
 
-make_rtl_arith_logic(add)
-make_rtl_arith_logic(sub)
-make_rtl_arith_logic(and)
-make_rtl_arith_logic(or)
-make_rtl_arith_logic(xor)
-make_rtl_arith_logic(shl)
-make_rtl_arith_logic(shr)
-make_rtl_arith_logic(sar)
-make_rtl_arith_logic(mul_lo)
-make_rtl_arith_logic(mul_hi)
-make_rtl_arith_logic(imul_lo)
-make_rtl_arith_logic(imul_hi)
-make_rtl_arith_logic(div_q)
-make_rtl_arith_logic(div_r)
-make_rtl_arith_logic(idiv_q)
-make_rtl_arith_logic(idiv_r)
+make_generate_rtl_arith_logic(add)
+make_generate_rtl_arith_logic(sub)
+make_generate_rtl_arith_logic(and)
+make_generate_rtl_arith_logic(or)
+make_generate_rtl_arith_logic(xor)
+make_generate_rtl_arith_logic(shl)
+make_generate_rtl_arith_logic(shr)
+make_generate_rtl_arith_logic(sar)
+make_generate_rtl_arith_logic(mul_lo)
+make_generate_rtl_arith_logic(mul_hi)
+make_generate_rtl_arith_logic(imul_lo)
+make_generate_rtl_arith_logic(imul_hi)
+make_generate_rtl_arith_logic(div_q)
+make_generate_rtl_arith_logic(div_r)
+make_generate_rtl_arith_logic(idiv_q)
+make_generate_rtl_arith_logic(idiv_r)
 
-static inline void interpret_rtl_div64_q(rtlreg_t* dest,
-    const rtlreg_t* src1_hi, const rtlreg_t* src1_lo, const rtlreg_t* src2) {
-  uint64_t dividend = ((uint64_t)(*src1_hi) << 32) | (*src1_lo);
-  uint32_t divisor = (*src2);
-  *dest = dividend / divisor;
-}
+void generate_rtl_div64_q(rtlreg_t* dest,
+    const rtlreg_t* src1_hi, const rtlreg_t* src1_lo, const rtlreg_t* src2);
 
-static inline void interpret_rtl_div64_r(rtlreg_t* dest,
-    const rtlreg_t* src1_hi, const rtlreg_t* src1_lo, const rtlreg_t* src2) {
-  uint64_t dividend = ((uint64_t)(*src1_hi) << 32) | (*src1_lo);
-  uint32_t divisor = (*src2);
-  *dest = dividend % divisor;
-}
+void generate_rtl_div64_r(rtlreg_t* dest,
+    const rtlreg_t* src1_hi, const rtlreg_t* src1_lo, const rtlreg_t* src2);
 
-static inline void interpret_rtl_idiv64_q(rtlreg_t* dest,
-    const rtlreg_t* src1_hi, const rtlreg_t* src1_lo, const rtlreg_t* src2) {
-  int64_t dividend = ((uint64_t)(*src1_hi) << 32) | (*src1_lo);
-  int32_t divisor = (*src2);
-  *dest = dividend / divisor;
-}
+void generate_rtl_idiv64_q(rtlreg_t* dest,
+    const rtlreg_t* src1_hi, const rtlreg_t* src1_lo, const rtlreg_t* src2);
 
-static inline void interpret_rtl_idiv64_r(rtlreg_t* dest,
-    const rtlreg_t* src1_hi, const rtlreg_t* src1_lo, const rtlreg_t* src2) {
-  int64_t dividend = ((uint64_t)(*src1_hi) << 32) | (*src1_lo);
-  int32_t divisor = (*src2);
-  *dest = dividend % divisor;
-}
+void generate_rtl_idiv64_r(rtlreg_t* dest,
+    const rtlreg_t* src1_hi, const rtlreg_t* src1_lo, const rtlreg_t* src2);
 
-static inline void interpret_rtl_lm(rtlreg_t *dest, const rtlreg_t* addr, int len) {
-  *dest = vaddr_read(*addr, len);
-}
+void generate_rtl_lm(rtlreg_t *dest, const rtlreg_t* addr, int len);
 
-static inline void interpret_rtl_sm(const rtlreg_t* addr, int len, const rtlreg_t* src1) {
-  vaddr_write(*addr, len, *src1);
-}
+void generate_rtl_sm(const rtlreg_t* addr, int len, const rtlreg_t* src1);
 
-static inline void interpret_rtl_lr_l(rtlreg_t* dest, int r) {
-  *dest = reg_l(r);
-}
+void generate_rtl_lr_l(rtlreg_t* dest, int r);
 
-static inline void interpret_rtl_lr_w(rtlreg_t* dest, int r) {
-  *dest = reg_w(r);
-}
+void generate_rtl_lr_w(rtlreg_t* dest, int r);
 
-static inline void interpret_rtl_lr_b(rtlreg_t* dest, int r) {
-  *dest = reg_b(r);
-}
+void generate_rtl_lr_b(rtlreg_t* dest, int r);
 
-static inline void interpret_rtl_sr_l(int r, const rtlreg_t* src1) {
-  reg_l(r) = *src1;
-}
+void generate_rtl_sr_l(int r, const rtlreg_t* src1);
 
-static inline void interpret_rtl_sr_w(int r, const rtlreg_t* src1) {
-  reg_w(r) = *src1;
-}
+void generate_rtl_sr_w(int r, const rtlreg_t* src1);
 
-static inline void interpret_rtl_sr_b(int r, const rtlreg_t* src1) {
-  reg_b(r) = *src1;
-}
+void generate_rtl_sr_b(int r, const rtlreg_t* src1);
+
+#define make_generate_rtl_setget_eflags(f) \
+  void concat(generate_rtl_set_, f) (const rtlreg_t* src); \
+  void concat(generate_rtl_get_, f) (rtlreg_t* dest);
+
+make_generate_rtl_setget_eflags(CF)
+make_generate_rtl_setget_eflags(OF)
+make_generate_rtl_setget_eflags(ZF)
+make_generate_rtl_setget_eflags(SF)
 
 /* RTL psuedo instructions */
 
@@ -152,24 +164,11 @@ static inline void rtl_mv(rtlreg_t* dest, const rtlreg_t *src1) {
   rtl_add(dest, src1, &tzero);
 }
 
-void cc_gen_ZF(rtlreg_t *);
-void cc_gen_SF(rtlreg_t *);
-void cc_gen_OF(rtlreg_t *);
-void cc_gen_CF(rtlreg_t *);
-void cc_set_op(int, int, rtlreg_t *, rtlreg_t *);
-
-#define make_rtl_setget_eflags(f) \
-  static inline void concat(rtl_set_, f) (const rtlreg_t* src) { \
-    cpu.eflags.f = *src; \
-  } \
-  static inline void concat(rtl_get_, f) (rtlreg_t* dest) { \
-    *dest = cpu.eflags.f; \
-  }
-
-make_rtl_setget_eflags(CF)
-make_rtl_setget_eflags(OF)
-make_rtl_setget_eflags(ZF)
-make_rtl_setget_eflags(SF)
+// void cc_gen_ZF(rtlreg_t *);
+// void cc_gen_SF(rtlreg_t *);
+// void cc_gen_OF(rtlreg_t *);
+// void cc_gen_CF(rtlreg_t *);
+// void cc_set_op(int, int, rtlreg_t *, rtlreg_t *);
 
 static inline void rtl_not(rtlreg_t* dest) {
   // dest <- ~dest

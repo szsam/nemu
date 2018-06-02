@@ -3,6 +3,7 @@
 #include "nemu.h"
 #include "monitor/monitor.h"
 #include "monitor/watchpoint.h"
+#include "cpu/tb.h"
 
 /* The assembly code of instructions executed is only output to the screen
  * when the number of instructions executed is less than this value.
@@ -13,13 +14,16 @@
 
 int nemu_state = NEMU_STOP;
 
-void exec_wrapper(bool);
+bool exec_wrapper(bool);
 
 static uint64_t g_nr_guest_instr = 0;
 
 void nr_guest_instr_add(uint32_t n) {
   g_nr_guest_instr += n;
 }
+
+static TranslationBlock *tblocks = NULL;
+TranslationBlock *cur_tblock = NULL;
 
 void monitor_statistic() {
   Log("total guest instructions = %" PRIu64, g_nr_guest_instr);
@@ -38,8 +42,40 @@ void cpu_exec(uint64_t n) {
   for (; n > 0; n --) {
     /* Execute one instruction, including instruction fetch,
      * instruction decode, and the actual execution. */
-    exec_wrapper(print_flag);
-    nr_guest_instr_add(1);
+//    exec_wrapper(print_flag);
+//    nr_guest_instr_add(1);
+
+#if defined(DIFF_TEST)
+	vaddr_t ori_eip = cpu.eip;
+#endif
+
+	// search the translation block beginning at eip
+	HASH_FIND_INT(tblocks, &cpu.eip, cur_tblock);
+
+	if (cur_tblock == NULL) {
+		// translate a block and save RTLs
+		cur_tblock = (TranslationBlock *)malloc(sizeof(TranslationBlock));
+		cur_tblock->eip_start = cpu.eip;
+		cur_tblock->guest_instr_cnt = 0;
+		INIT_LIST_HEAD(&cur_tblock->rtl_instr_list.list);
+		HASH_ADD_INT(tblocks, eip_start, cur_tblock);
+
+		// translate up to (and include) next control transfer instr
+		do {
+			++cur_tblock->guest_instr_cnt;
+		}while(!exec_wrapper(print_flag));
+
+		cur_tblock->eip_end = cpu.eip;
+	}
+
+	cpu.eip = cur_tblock->eip_end;
+	interpret_tblock(cur_tblock);
+    nr_guest_instr_add(cur_tblock->guest_instr_cnt);
+
+#ifdef DIFF_TEST
+  void difftest_step(uint32_t, int);
+  difftest_step(ori_eip, cur_tblock->guest_instr_cnt);
+#endif
 
 #ifdef DEBUG
     /* TODO: check watchpoints here. */

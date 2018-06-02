@@ -126,7 +126,7 @@ void init_qemu_reg() {
   assert(ok == 1);
 }
 
-void difftest_step(uint32_t eip) {
+void difftest_step(uint32_t eip, int nr_instr) {
   union gdb_regs r;
   bool diff = false;
 
@@ -144,7 +144,8 @@ void difftest_step(uint32_t eip) {
     return;
   }
 
-  gdb_si();
+  while (nr_instr--)
+	  gdb_si();
   gdb_getregs(&r);
 
   // TODO: Check the registers state with QEMU.
