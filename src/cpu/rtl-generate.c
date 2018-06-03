@@ -93,25 +93,22 @@ make_rtl_arith_logic_body(div_r, DIV_R)
 make_rtl_arith_logic_body(idiv_q, IDIV_Q)
 make_rtl_arith_logic_body(idiv_r, IDIV_R)
 
-void generate_rtl_div64_q(rtlreg_t* dest,
-    const rtlreg_t* src1_hi, const rtlreg_t* src1_lo, const rtlreg_t* src2) {
-	TODO();
+#define make_rtl_div64(instr, tag) \
+void concat(generate_rtl_, instr) (rtlreg_t* dest, \
+    const rtlreg_t* src1_hi, const rtlreg_t* src1_lo, const rtlreg_t* src2) { \
+	make_generate_rtl_prologue(tag) \
+	copy_param(div64, dest) \
+	copy_param(div64, src1_hi) \
+	copy_param(div64, src1_lo) \
+	copy_param(div64, src2) \
+	make_generate_rtl_epilogue() \
 }
 
-void generate_rtl_div64_r(rtlreg_t* dest,
-    const rtlreg_t* src1_hi, const rtlreg_t* src1_lo, const rtlreg_t* src2) {
-	TODO();
-}
+make_rtl_div64(div64_q, DIV64_Q)
+make_rtl_div64(div64_r, DIV64_R)
+make_rtl_div64(idiv64_q, IDIV64_Q)
+make_rtl_div64(idiv64_r, IDIV64_R)
 
-void generate_rtl_idiv64_q(rtlreg_t* dest,
-    const rtlreg_t* src1_hi, const rtlreg_t* src1_lo, const rtlreg_t* src2) {
-	TODO();
-}
-
-void generate_rtl_idiv64_r(rtlreg_t* dest,
-    const rtlreg_t* src1_hi, const rtlreg_t* src1_lo, const rtlreg_t* src2) {
-	TODO();
-}
 
 void generate_rtl_lm(rtlreg_t *dest, const rtlreg_t* addr, int len) {
 	make_generate_rtl_prologue(LM)

@@ -23,6 +23,8 @@ typedef enum {
 	MUL_LOI, MUL_HII, IMUL_LOI, IMUL_HII,
 	DIV_QI, DIV_RI, IDIV_QI, IDIV_RI,
 
+	DIV64_Q, DIV64_R, IDIV64_Q, IDIV64_R,
+
 	SET_CF, SET_OF, SET_ZF, SET_SF,
 	GET_CF, GET_OF, GET_ZF, GET_SF,
 } RTLInstrType;
@@ -57,6 +59,9 @@ typedef struct  {
 
 		// arith/logic immediate
 		struct { rtlreg_t* dest; const rtlreg_t* src1; int imm; }alui;
+
+		struct { rtlreg_t* dest;
+			const rtlreg_t* src1_hi; const rtlreg_t* src1_lo; const rtlreg_t* src2; }div64;
 
 		struct { const rtlreg_t* src; }set_eflags;
 		struct { rtlreg_t* dest; }get_eflags;

@@ -37,6 +37,12 @@ static void (*interpret_rtl_arith_logic_imm[16])(
 	interpret_rtl_idiv_qi, interpret_rtl_idiv_ri,
 };
 
+static void (*interpret_rtl_div64[4])(rtlreg_t* ,
+    const rtlreg_t* , const rtlreg_t* , const rtlreg_t*) = {
+	interpret_rtl_div64_q, interpret_rtl_div64_r, 
+	interpret_rtl_idiv64_q, interpret_rtl_idiv64_r
+};
+
 void interpret_tblock(const TranslationBlock *tb) {
 	RTLInstr *rtl;
 	list_for_each_entry(rtl, &tb->rtl_instr_list.list, list) {
@@ -79,6 +85,7 @@ void interpret_tblock(const TranslationBlock *tb) {
 			case GET_CF: case GET_OF: case GET_ZF: case GET_SF:
 				interpret_rtl_get_eflags[rtl->type - GET_CF](rtl->get_eflags.dest);
 				break;
+
 			case ADD: case SUB: case AND: case OR: case XOR: 
 			case SHL: case SHR: case SAR:
 			case MUL_LO: case MUL_HI: case IMUL_LO: case IMUL_HI:
@@ -86,6 +93,7 @@ void interpret_tblock(const TranslationBlock *tb) {
 				interpret_rtl_arith_logic[rtl->type - ADD](
 					rtl->alu.dest, rtl->alu.src1, rtl->alu.src2);
 				break;
+
 			case ADDI: case SUBI: case ANDI: case ORI: case XORI: 
 			case SHLI: case SHRI: case SARI:
 			case MUL_LOI: case MUL_HII: case IMUL_LOI: case IMUL_HII:
@@ -93,8 +101,15 @@ void interpret_tblock(const TranslationBlock *tb) {
 				interpret_rtl_arith_logic_imm[rtl->type - ADDI](
 					rtl->alui.dest, rtl->alui.src1, rtl->alui.imm);
 				break;
+
+			case DIV64_Q: case DIV64_R: case IDIV64_Q: case IDIV64_R:
+				interpret_rtl_div64[rtl->type - DIV64_Q](
+					rtl->div64.dest, rtl->div64.src1_hi,
+					rtl->div64.src1_lo, rtl->div64.src2);
+				break;
+
 			default:
-				TODO();
+				assert(0);
 		}
 	}
 }
