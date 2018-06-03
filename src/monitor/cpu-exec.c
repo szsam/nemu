@@ -39,6 +39,8 @@ void cpu_exec(uint64_t n) {
 
   bool print_flag = n < MAX_INSTR_TO_PRINT;
 
+  int tot_tb = 0, new_tb = 0;
+
   for (; n > 0; n --) {
     /* Execute one instruction, including instruction fetch,
      * instruction decode, and the actual execution. */
@@ -66,11 +68,19 @@ void cpu_exec(uint64_t n) {
 		}while(!exec_wrapper(print_flag));
 
 		cur_tblock->eip_end = cpu.eip;
+
+		++new_tb;
+//		Log("New translation block. eip_start: 0x%x, eip_end: 0x%x, #instr: %d",
+//				cur_tblock->eip_start, cur_tblock->eip_end, cur_tblock->guest_instr_cnt);
 	}
+//  else
+//		Log("Hit translation block. eip_start: 0x%x, eip_end: 0x%x, #instr: %d",
+//				cur_tblock->eip_start, cur_tblock->eip_end, cur_tblock->guest_instr_cnt);
 
 	cpu.eip = cur_tblock->eip_end;
 	interpret_tblock(cur_tblock);
     nr_guest_instr_add(cur_tblock->guest_instr_cnt);
+	++tot_tb;
 
 #ifdef DIFF_TEST
   void difftest_step(uint32_t, int);
@@ -89,6 +99,8 @@ void cpu_exec(uint64_t n) {
 #endif
 
     if (nemu_state != NEMU_RUNNING) {
+      Log("Translation block hit rate: %f%%", 100.0 * (tot_tb - new_tb) / tot_tb);
+
       if (nemu_state == NEMU_END) {
         printflog("\33[1;31mnemu: HIT %s TRAP\33[0m at eip = 0x%08x\n\n",
             (cpu.eax == 0 ? "GOOD" : "BAD"), cpu.eip - 1);

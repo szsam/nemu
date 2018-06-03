@@ -185,3 +185,18 @@ make_rtl_setget_eflags_body(OF)
 make_rtl_setget_eflags_body(ZF)
 make_rtl_setget_eflags_body(SF)
 
+void generate_rtl_pio_read(rtlreg_t *dest, const rtlreg_t *addr, int len) {
+	make_generate_rtl_prologue(PIO_READ)
+	copy_param(pio_read, dest)
+	copy_param(pio_read, addr)
+	copy_param(pio_read, len)
+	make_generate_rtl_epilogue()
+}
+
+void generate_rtl_pio_write(const rtlreg_t *addr, const rtlreg_t *src, int len) {
+	make_generate_rtl_prologue(PIO_WRITE)
+	copy_param(pio_write, addr)
+	copy_param(pio_write, src)
+	copy_param(pio_write, len)
+	make_generate_rtl_epilogue()
+}

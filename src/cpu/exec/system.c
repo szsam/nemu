@@ -1,5 +1,5 @@
 #include "cpu/exec.h"
-#include "device/port-io.h"
+// #include "device/port-io.h"
 
 void diff_test_skip_qemu();
 void diff_test_skip_nemu();
@@ -52,7 +52,7 @@ make_EHelper(iret) {
 extern bool diff_test_fix;
 
 make_EHelper(in) {
-  t0 = pio_read(id_src->val, id_dest->width);
+  rtl_pio_read(&t0, &id_src->val, id_dest->width);
   operand_write(id_dest, &t0);
 
 #if defined(DIFF_TEST)
@@ -63,7 +63,7 @@ make_EHelper(in) {
 }
 
 make_EHelper(out) {
-  pio_write(id_dest->val, id_src->val, id_src->width);
+  rtl_pio_write(&id_dest->val, &id_src->val, id_src->width);
 
 #if defined(DIFF_TEST)
   diff_test_skip_qemu();

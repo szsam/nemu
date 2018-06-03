@@ -27,6 +27,8 @@ typedef enum {
 
 	SET_CF, SET_OF, SET_ZF, SET_SF,
 	GET_CF, GET_OF, GET_ZF, GET_SF,
+
+	PIO_READ, PIO_WRITE
 } RTLInstrType;
 
 typedef struct  {
@@ -65,6 +67,9 @@ typedef struct  {
 
 		struct { const rtlreg_t* src; }set_eflags;
 		struct { rtlreg_t* dest; }get_eflags;
+		
+		struct { rtlreg_t *dest; const rtlreg_t *addr; int len; }pio_read;
+		struct { const rtlreg_t *addr; const rtlreg_t *src; int len; }pio_write;
 	};
 
 	struct list_head list;
@@ -143,6 +148,9 @@ make_generate_rtl_setget_eflags(CF)
 make_generate_rtl_setget_eflags(OF)
 make_generate_rtl_setget_eflags(ZF)
 make_generate_rtl_setget_eflags(SF)
+
+void generate_rtl_pio_read(rtlreg_t *dest, const rtlreg_t *addr, int len);
+void generate_rtl_pio_write(const rtlreg_t *addr, const rtlreg_t *src, int len);
 
 /* RTL psuedo instructions */
 

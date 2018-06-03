@@ -5,7 +5,7 @@
 #include "util/c_op.h"
 #include "cpu/relop.h"
 #include "cpu/rtl-wrapper.h"
-// #include "cpu/rtl-generate.h"
+#include "device/port-io.h"
 
 extern rtlreg_t t0, t1, t2, t3, at;
 extern const rtlreg_t tzero;
@@ -141,5 +141,14 @@ make_rtl_setget_eflags(OF)
 make_rtl_setget_eflags(ZF)
 make_rtl_setget_eflags(SF)
 
+static inline 
+void interpret_rtl_pio_read(rtlreg_t *dest, const rtlreg_t *addr, int len) {
+	*dest = pio_read(*addr, len);
+}
+
+static inline
+void interpret_rtl_pio_write(const rtlreg_t *addr, const rtlreg_t *src, int len) {
+	pio_write(*addr, *src, len);
+}
 
 #endif

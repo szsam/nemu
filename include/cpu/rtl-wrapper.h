@@ -64,5 +64,7 @@
 #define rtl_get_OF    concat3(RTL_PREFIX, _, rtl_get_OF  )
 #define rtl_get_ZF    concat3(RTL_PREFIX, _, rtl_get_ZF  )
 #define rtl_get_SF    concat3(RTL_PREFIX, _, rtl_get_SF  )
+#define rtl_pio_read  concat3(RTL_PREFIX, _, rtl_pio_read)
+#define rtl_pio_write concat3(RTL_PREFIX, _, rtl_pio_write)
 
 #endif
