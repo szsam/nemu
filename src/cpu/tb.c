@@ -7,8 +7,9 @@
 		break;
 
 void interpret_tblock(const TranslationBlock *tb) {
-	RTLInstr *rtl;
-	list_for_each_entry(rtl, &tb->rtl_instr_list.list, list) {
+	RTLInstr *rtl = tb->rtl_instr_arr;
+	int i = 0;
+	for (; i < tb->rtl_instr_cnt; ++i, ++rtl) {
 		switch (rtl->type) {
 			make_interpret_rtl_case(J, j, rtl->j.target)
 			make_interpret_rtl_case(JR, jr, rtl->jr.target)
@@ -94,3 +95,17 @@ void interpret_tblock(const TranslationBlock *tb) {
 		}
 	}
 }
+
+
+void optimize_tblock(TranslationBlock *tb) {
+	tb->rtl_instr_arr = (RTLInstr *)malloc(sizeof(RTLInstr) * tb->rtl_instr_cnt);
+	RTLInstrListItem *rtl_list_item;
+	int i = 0;
+	list_for_each_entry(rtl_list_item, &tb->rtl_instr_list.list, list) {
+		tb->rtl_instr_arr[i++] = rtl_list_item->rtl_instr;
+	}
+	assert(i == tb->rtl_instr_cnt);
+}
+
+
+

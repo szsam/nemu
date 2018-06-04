@@ -8,8 +8,10 @@
 typedef struct {
 	vaddr_t eip_start;
 	vaddr_t eip_end;
-	RTLInstr rtl_instr_list;
 	int guest_instr_cnt;
+	int rtl_instr_cnt;
+	RTLInstrListItem rtl_instr_list;
+	RTLInstr *rtl_instr_arr;
 
 	UT_hash_handle hh;
 }TranslationBlock;
@@ -17,5 +19,7 @@ typedef struct {
 extern TranslationBlock *cur_tblock;
 
 void interpret_tblock(const TranslationBlock *);
+
+void optimize_tblock(TranslationBlock *);
 
 #endif

@@ -6,11 +6,14 @@
 /* RTL basic instructions */
 
 #define make_generate_rtl_prologue(tag) \
-	RTLInstr *rtl = (RTLInstr *)malloc(sizeof(RTLInstr)); \
-	rtl->type = tag;
+	RTLInstrListItem *rtl_instr_list_item \
+		= (RTLInstrListItem *)malloc(sizeof(RTLInstrListItem)); \
+	RTLInstr *rtl = &rtl_instr_list_item->rtl_instr; \
+	rtl->type = tag; \
+	++cur_tblock->rtl_instr_cnt; 
 
 #define make_generate_rtl_epilogue() \
-	list_add_tail(&rtl->list, &cur_tblock->rtl_instr_list.list);
+	list_add_tail(&rtl_instr_list_item->list, &cur_tblock->rtl_instr_list.list);
 
 #define copy_param(field_name, arg) rtl->field_name.arg = arg;
 

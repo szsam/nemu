@@ -72,8 +72,12 @@ typedef struct  {
 		struct { const rtlreg_t *addr; const rtlreg_t *src; int len; }pio_write;
 	};
 
-	struct list_head list;
 }RTLInstr;
+
+typedef struct {
+	RTLInstr rtl_instr;
+	struct list_head list;
+}RTLInstrListItem;
 
 /* RTL basic instructions */
 

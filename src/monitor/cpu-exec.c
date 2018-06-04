@@ -59,6 +59,7 @@ void cpu_exec(uint64_t n) {
 		cur_tblock = (TranslationBlock *)malloc(sizeof(TranslationBlock));
 		cur_tblock->eip_start = cpu.eip;
 		cur_tblock->guest_instr_cnt = 0;
+		cur_tblock->rtl_instr_cnt = 0;
 		INIT_LIST_HEAD(&cur_tblock->rtl_instr_list.list);
 		HASH_ADD_INT(tblocks, eip_start, cur_tblock);
 
@@ -69,9 +70,12 @@ void cpu_exec(uint64_t n) {
 
 		cur_tblock->eip_end = cpu.eip;
 
+		optimize_tblock(cur_tblock);
+
 		++new_tb;
-//		Log("New translation block. eip_start: 0x%x, eip_end: 0x%x, #instr: %d",
-//				cur_tblock->eip_start, cur_tblock->eip_end, cur_tblock->guest_instr_cnt);
+		// Log("New translation block. eip: [0x%x, 0x%x) #guest-instr: %d, $rtl-instr: %d",
+		// 		cur_tblock->eip_start, cur_tblock->eip_end, 
+		// 		cur_tblock->guest_instr_cnt, cur_tblock->rtl_instr_cnt);
 	}
 //  else
 //		Log("Hit translation block. eip_start: 0x%x, eip_end: 0x%x, #instr: %d",
