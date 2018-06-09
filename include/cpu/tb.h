@@ -22,4 +22,6 @@ void interpret_tblock(const TranslationBlock *);
 
 void optimize_tblock(TranslationBlock *);
 
+void print_tblock(const TranslationBlock *);
+
 #endif
