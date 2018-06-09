@@ -73,9 +73,9 @@ void cpu_exec(uint64_t n) {
 		optimize_tblock(cur_tblock);
 
 		++new_tb;
-		// Log("New translation block. eip: [0x%x, 0x%x) #guest-instr: %d, $rtl-instr: %d",
-		// 		cur_tblock->eip_start, cur_tblock->eip_end, 
-		// 		cur_tblock->guest_instr_cnt, cur_tblock->rtl_instr_cnt);
+		Log("New translation block. eip: [0x%x, 0x%x) #guest-instr: %d, $rtl-instr: %d",
+				cur_tblock->eip_start, cur_tblock->eip_end, 
+				cur_tblock->guest_instr_cnt, cur_tblock->rtl_instr_cnt);
 	}
 //  else
 //		Log("Hit translation block. eip_start: 0x%x, eip_end: 0x%x, #instr: %d",

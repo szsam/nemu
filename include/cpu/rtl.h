@@ -11,6 +11,14 @@
 extern rtlreg_t t0, t1, t2, t3, at;
 extern const rtlreg_t tzero;
 
+extern const rtlreg_t * const rtl_registers[];
+
+enum { R_DEST_VAL = R_EDI + 1, R_SRC_VAL,
+	R_TZERO, R_T0, R_T1, R_T2, R_T3, R_AT,
+	R_SRC2_VAL,
+	R_DEST_ADDR, R_SRC_ADDR, R_SRC2_ADDR,
+};
+
 typedef enum {
 	J, JR, JRELOP, SETRELOP, EXIT, LI, LM, SM, 
 	LR_L, LR_W, LR_B, SR_L, SR_W, SR_B,
@@ -29,47 +37,24 @@ typedef enum {
 	GET_CF, GET_OF, GET_ZF, GET_SF,
 
 	PIO_READ, PIO_WRITE
-} RTLInstrType;
+} RTLInstrOpcode;
 
 typedef struct  {
-	RTLInstrType type;
+	struct {
+		uint32_t opcode   :6;
+		uint32_t r1       :5;
+		uint32_t r2       :5;
+		uint32_t r3       :5;
+		uint32_t r4       :5;
+		uint32_t relop    :4;
+		uint32_t reserved :2;
+	};
 
 	union {
-		struct { vaddr_t target; }j;
-		struct { rtlreg_t *target; }jr;
-		struct { 
-			uint32_t relop;
-			const rtlreg_t *src1; 
-			const rtlreg_t *src2; 
-			vaddr_t target; 
-		}jrelop;
-		struct {
-			uint32_t relop; 
-			rtlreg_t *dest; 
-			const rtlreg_t *src1; 
-			const rtlreg_t *src2; 
-		}setrelop;
-		struct { int state; }exit;
-		struct { rtlreg_t *dest; uint32_t imm; }li;
-		struct { rtlreg_t *dest; const rtlreg_t* addr; int len; }lm;
-		struct { const rtlreg_t *addr; int len; const rtlreg_t* src1; }sm;
-		struct { rtlreg_t* dest; int r; }lr;
-		struct { int r; const rtlreg_t* src1; }sr;
-
-		// arith/logic
-		struct { rtlreg_t* dest; const rtlreg_t* src1; const rtlreg_t* src2; }alu;
-
-		// arith/logic immediate
-		struct { rtlreg_t* dest; const rtlreg_t* src1; int imm; }alui;
-
-		struct { rtlreg_t* dest;
-			const rtlreg_t* src1_hi; const rtlreg_t* src1_lo; const rtlreg_t* src2; }div64;
-
-		struct { const rtlreg_t* src; }set_eflags;
-		struct { rtlreg_t* dest; }get_eflags;
-		
-		struct { rtlreg_t *dest; const rtlreg_t *addr; int len; }pio_read;
-		struct { const rtlreg_t *addr; const rtlreg_t *src; int len; }pio_write;
+		vaddr_t target;
+		int state;
+		uint32_t imm;
+		int len;
 	};
 
 }RTLInstr;
