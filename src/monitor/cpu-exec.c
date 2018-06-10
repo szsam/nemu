@@ -22,11 +22,16 @@ void nr_guest_instr_add(uint32_t n) {
   g_nr_guest_instr += n;
 }
 
+static int tot_tb = 0, new_tb = 0;
+static uint64_t nr_rtl_instr = 0;
+
 static TranslationBlock *tblocks = NULL;
 TranslationBlock *cur_tblock = NULL;
 
 void monitor_statistic() {
   Log("total guest instructions = %" PRIu64, g_nr_guest_instr);
+  Log("total RTL instructions = %" PRIu64, nr_rtl_instr);
+  Log("Translation block hit rate: %f%%", 100.0 * (tot_tb - new_tb) / tot_tb);
 }
 
 /* Simulate how the CPU works. */
@@ -38,8 +43,6 @@ void cpu_exec(uint64_t n) {
   nemu_state = NEMU_RUNNING;
 
   bool print_flag = n < MAX_INSTR_TO_PRINT;
-
-  int tot_tb = 0, new_tb = 0;
 
   for (; n > 0; n --) {
     /* Execute one instruction, including instruction fetch,
@@ -73,10 +76,10 @@ void cpu_exec(uint64_t n) {
 		optimize_tblock(cur_tblock);
 
 		++new_tb;
-		Log("New translation block. eip: [0x%x, 0x%x) #guest-instr: %d, $rtl-instr: %d",
-				cur_tblock->eip_start, cur_tblock->eip_end, 
-				cur_tblock->guest_instr_cnt, cur_tblock->rtl_instr_cnt);
-		print_tblock(cur_tblock);
+//		Log("New translation block. eip: [0x%x, 0x%x) #guest-instr: %d, $rtl-instr: %d",
+//				cur_tblock->eip_start, cur_tblock->eip_end, 
+//				cur_tblock->guest_instr_cnt, cur_tblock->rtl_instr_cnt);
+//		print_tblock(cur_tblock);
 	}
 //  else
 //		Log("Hit translation block. eip_start: 0x%x, eip_end: 0x%x, #instr: %d",
@@ -85,6 +88,7 @@ void cpu_exec(uint64_t n) {
 	cpu.eip = cur_tblock->eip_end;
 	interpret_tblock(cur_tblock);
     nr_guest_instr_add(cur_tblock->guest_instr_cnt);
+	nr_rtl_instr += cur_tblock->rtl_instr_cnt;
 	++tot_tb;
 
 #ifdef DIFF_TEST
@@ -104,8 +108,6 @@ void cpu_exec(uint64_t n) {
 #endif
 
     if (nemu_state != NEMU_RUNNING) {
-      Log("Translation block hit rate: %f%%", 100.0 * (tot_tb - new_tb) / tot_tb);
-
       if (nemu_state == NEMU_END) {
         printflog("\33[1;31mnemu: HIT %s TRAP\33[0m at eip = 0x%08x\n\n",
             (cpu.eax == 0 ? "GOOD" : "BAD"), cpu.eip - 1);

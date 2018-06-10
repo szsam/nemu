@@ -98,7 +98,169 @@ void interpret_tblock(const TranslationBlock *tb) {
 }
 
 
+// --------------------------------------------------------------------
+// x <- y
+#define make_dce_case1(opcode, x, y) \
+	case opcode: \
+		if (live[x]) { \
+			live[x] = 0; live[y] = 1; \
+		} \
+		else { \
+			list_del(&list_item->list); \
+			free(list_item); \
+			--tb->rtl_instr_cnt; \
+		} \
+		break;
+
+// x <- y + z
+#define make_dce_case2(opcode, x, y, z) \
+	case opcode: \
+		if (live[x]) { \
+			live[x] = 0; live[y] = live[z] = 1;\
+		} \
+		else { \
+			list_del(&list_item->list); \
+			free(list_item); \
+			--tb->rtl_instr_cnt; \
+		} \
+		break;
+
+// x <- y + z + w
+#define make_dce_case3(opcode, x, y, z, w) \
+	case opcode: \
+		if (live[x]) { \
+			live[x] = 0; live[y] = live[z] = live[w] = 1; \
+		} \
+		else { \
+			list_del(&list_item->list); \
+			free(list_item); \
+			--tb->rtl_instr_cnt; \
+		} \
+		break;
+
+#define make_dce_set_eflags(opcode, flag, src) \
+	case opcode: \
+		if (concat(live_, flag)) { \
+			concat(live_, flag) = 0; live[src] = 1; \
+		} \
+		else { \
+			list_del(&list_item->list); \
+			free(list_item); \
+			--tb->rtl_instr_cnt; \
+		} \
+		break;
+
+#define make_dce_get_eflags(opcode, flag, dest) \
+	case opcode: \
+		if (live[dest]) { \
+			live[dest] = 0; concat(live_, flag) = 1; \
+		} \
+		else { \
+			list_del(&list_item->list); \
+			free(list_item); \
+			--tb->rtl_instr_cnt; \
+		} \
+		break;
+
+void dead_code_elimination(TranslationBlock *tb) {
+	RTLInstrListItem *list_item;
+	RTLInstrListItem *tmp;
+
+	// liveness of RTL registers, initialized by their values
+	// on exit of a basic block
+	bool live[NR_RTLREG] = {
+		1, 1, 1, 1, 1, 1, 1, 1, // eight GPRs are live, others are not live
+	};
+	bool live_CF = 1, live_OF = 1, live_ZF = 1, live_SF = 1;
+
+	list_for_each_entry_safe_prev(list_item, tmp, &tb->rtl_instr_list.list, list) {
+		RTLInstr *rtl = &list_item->rtl_instr;
+		switch (rtl->opcode) {
+			case JR: live[rtl->r1] = 1; break;
+			case JRELOP: live[rtl->r2] = live[rtl->r3] = 1; break;
+
+			make_dce_case2(SETRELOP, rtl->r1, rtl->r2, rtl->r3)
+
+			case LI: 
+				if (live[rtl->r1]) {
+					live[rtl->r1] = 0;
+				}
+				else {
+					list_del(&list_item->list);
+					free(list_item);
+					--tb->rtl_instr_cnt;
+				}
+				break;
+
+			case LM: live[rtl->r2] = 1; break;
+			case SM: live[rtl->r2] = live[rtl->r3] = 1; break;
+
+			make_dce_case1(LR_L, rtl->r1, rtl->r2)
+			case LR_W: live[rtl->r2] = 1; break;
+			case LR_B: live[rtl->r2] = 1; break;
+
+			make_dce_case1(SR_L, rtl->r1, rtl->r2)
+			case SR_W: live[rtl->r2] = 1; break;
+			case SR_B: live[rtl->r2] = 1; break;
+
+			make_dce_set_eflags(SET_CF, CF, rtl->r1)
+			make_dce_set_eflags(SET_OF, OF, rtl->r1)
+			make_dce_set_eflags(SET_ZF, ZF, rtl->r1)
+			make_dce_set_eflags(SET_SF, SF, rtl->r1)
+
+			make_dce_get_eflags(GET_CF, CF, rtl->r1)
+			make_dce_get_eflags(GET_OF, OF, rtl->r1)
+			make_dce_get_eflags(GET_ZF, ZF, rtl->r1)
+			make_dce_get_eflags(GET_SF, SF, rtl->r1)
+
+			make_dce_case2(ADD    , rtl->r1, rtl->r2, rtl->r3)
+			make_dce_case2(SUB    , rtl->r1, rtl->r2, rtl->r3)
+			make_dce_case2(AND    , rtl->r1, rtl->r2, rtl->r3)
+			make_dce_case2(OR     , rtl->r1, rtl->r2, rtl->r3)
+			make_dce_case2(XOR    , rtl->r1, rtl->r2, rtl->r3)
+			make_dce_case2(SHL    , rtl->r1, rtl->r2, rtl->r3)
+			make_dce_case2(SHR    , rtl->r1, rtl->r2, rtl->r3)
+			make_dce_case2(SAR    , rtl->r1, rtl->r2, rtl->r3)
+			make_dce_case2(MUL_LO , rtl->r1, rtl->r2, rtl->r3)
+			make_dce_case2(MUL_HI , rtl->r1, rtl->r2, rtl->r3)
+			make_dce_case2(IMUL_LO, rtl->r1, rtl->r2, rtl->r3)
+			make_dce_case2(IMUL_HI, rtl->r1, rtl->r2, rtl->r3)
+			make_dce_case2(DIV_Q  , rtl->r1, rtl->r2, rtl->r3)
+			make_dce_case2(DIV_R  , rtl->r1, rtl->r2, rtl->r3)
+			make_dce_case2(IDIV_Q , rtl->r1, rtl->r2, rtl->r3)
+			make_dce_case2(IDIV_R , rtl->r1, rtl->r2, rtl->r3)
+
+			make_dce_case1(ADDI    , rtl->r1, rtl->r2)
+			make_dce_case1(SUBI    , rtl->r1, rtl->r2)
+			make_dce_case1(ANDI    , rtl->r1, rtl->r2)
+			make_dce_case1(ORI     , rtl->r1, rtl->r2)
+			make_dce_case1(XORI    , rtl->r1, rtl->r2)
+			make_dce_case1(SHLI    , rtl->r1, rtl->r2)
+			make_dce_case1(SHRI    , rtl->r1, rtl->r2)
+			make_dce_case1(SARI    , rtl->r1, rtl->r2)
+			make_dce_case1(MUL_LOI , rtl->r1, rtl->r2)
+			make_dce_case1(MUL_HII , rtl->r1, rtl->r2)
+			make_dce_case1(IMUL_LOI, rtl->r1, rtl->r2)
+			make_dce_case1(IMUL_HII, rtl->r1, rtl->r2)
+			make_dce_case1(DIV_QI  , rtl->r1, rtl->r2)
+			make_dce_case1(DIV_RI  , rtl->r1, rtl->r2)
+			make_dce_case1(IDIV_QI , rtl->r1, rtl->r2)
+			make_dce_case1(IDIV_RI , rtl->r1, rtl->r2)
+
+			make_dce_case3(DIV64_Q,  rtl->r1, rtl->r2, rtl->r3, rtl->r4)
+			make_dce_case3(DIV64_R,  rtl->r1, rtl->r2, rtl->r3, rtl->r4)
+			make_dce_case3(IDIV64_Q, rtl->r1, rtl->r2, rtl->r3, rtl->r4)
+			make_dce_case3(IDIV64_R, rtl->r1, rtl->r2, rtl->r3, rtl->r4)
+
+			case PIO_READ: live[rtl->r2] = 1; break;
+			case PIO_WRITE: live[rtl->r2] = live[rtl->r3] = 1; break;
+		}
+	}
+}
+
 void optimize_tblock(TranslationBlock *tb) {
+	dead_code_elimination(tb);
+
 	tb->rtl_instr_arr = (RTLInstr *)malloc(sizeof(RTLInstr) * tb->rtl_instr_cnt);
 	RTLInstrListItem *rtl_list_item;
 	int i = 0;

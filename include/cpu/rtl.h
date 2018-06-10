@@ -19,6 +19,8 @@ enum { R_DEST_VAL = R_EDI + 1, R_SRC_VAL,
 	R_DEST_ADDR, R_SRC_ADDR, R_SRC2_ADDR,
 };
 
+#define NR_RTLREG 20
+
 typedef enum {
 	J, JR, JRELOP, SETRELOP, EXIT, LI, LM, SM, 
 	LR_L, LR_W, LR_B, SR_L, SR_W, SR_B,
