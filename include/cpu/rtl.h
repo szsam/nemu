@@ -229,10 +229,14 @@ static inline void rtl_msb(rtlreg_t* dest, const rtlreg_t* src1, int width) {
 
 static inline void rtl_update_ZF(const rtlreg_t* result, int width) {
   // eflags.ZF <- is_zero(result[width * 8 - 1 .. 0])
-  uint32_t mask = 0xffffffffu >> (32 - 8 * width);
   // cpu.eflags.ZF = (*result & mask) == 0;
-  rtl_andi(&at, result, mask);
-  rtl_eq0(&at, &at);
+  if (width != 4) {
+    uint32_t mask = 0xffffffffu >> (32 - 8 * width);
+    rtl_andi(&at, result, mask);
+    rtl_eq0(&at, &at);
+  }
+  else
+    rtl_eq0(&at, result);
   rtl_set_ZF(&at);
 }
 
