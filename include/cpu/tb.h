@@ -24,4 +24,18 @@ void optimize_tblock(TranslationBlock *);
 
 void print_tblock(const TranslationBlock *);
 
+
+// extern const rtlreg_t * const rtl_registers[];
+ 
+enum { R_DEST_VAL = R_EDI + 1, R_SRC_VAL,
+	R_TZERO, R_T0, R_T1, R_T2, R_T3, R_AT,
+	R_SRC2_VAL,
+	R_DEST_ADDR, R_SRC_ADDR, R_SRC2_ADDR,
+};
+
+#define NR_RTLREG 20
+
+int rtlreg_a2n(const rtlreg_t *);
+#define a2n(a) rtlreg_a2n(a)
+
 #endif

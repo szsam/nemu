@@ -11,15 +11,6 @@
 extern rtlreg_t t0, t1, t2, t3, at;
 extern const rtlreg_t tzero;
 
-extern const rtlreg_t * const rtl_registers[];
-
-enum { R_DEST_VAL = R_EDI + 1, R_SRC_VAL,
-	R_TZERO, R_T0, R_T1, R_T2, R_T3, R_AT,
-	R_SRC2_VAL,
-	R_DEST_ADDR, R_SRC_ADDR, R_SRC2_ADDR,
-};
-
-#define NR_RTLREG 20
 
 typedef enum {
 	J, JR, JRELOP, SETRELOP, EXIT, LI, LM, SM, 
@@ -42,23 +33,22 @@ typedef enum {
 } RTLInstrOpcode;
 
 typedef struct  {
-	struct {
-		uint32_t opcode   :6;
-		uint32_t r1       :5;
-		uint32_t r2       :5;
-		uint32_t r3       :5;
-		uint32_t r4       :5;
-		uint32_t relop    :4;
-		uint32_t reserved :2;
-	};
+	RTLInstrOpcode opcode;
+
+	rtlreg_t *r1;
+	const rtlreg_t *r2;
+	const rtlreg_t *r3;
+	const rtlreg_t *r4;
 
 	union {
-		vaddr_t target;
+		uint32_t relop;
 		int state;
 		uint32_t imm;
 		int len;
+		int r;
 	};
 
+	vaddr_t target;
 }RTLInstr;
 
 typedef struct {
