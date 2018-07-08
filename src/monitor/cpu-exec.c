@@ -45,14 +45,11 @@ void cpu_exec(uint64_t n) {
   bool print_flag = n < MAX_INSTR_TO_PRINT;
 
   for (; n > 0; n --) {
-    /* Execute one instruction, including instruction fetch,
-     * instruction decode, and the actual execution. */
-//    exec_wrapper(print_flag);
-//    nr_guest_instr_add(1);
-
 #if defined(DIFF_TEST)
 	vaddr_t ori_eip = cpu.eip;
 #endif
+
+	/* Translate one basic block if necessary, then execute it */
 
 	// search the translation block beginning at eip
 	HASH_FIND_INT(tblocks, &cpu.eip, cur_tblock);
@@ -85,6 +82,7 @@ void cpu_exec(uint64_t n) {
 //		Log("Hit translation block. eip_start: 0x%x, eip_end: 0x%x, #instr: %d",
 //				cur_tblock->eip_start, cur_tblock->eip_end, cur_tblock->guest_instr_cnt);
 
+	// execute a basic block
 	cpu.eip = cur_tblock->eip_end;
 	interpret_tblock(cur_tblock);
     nr_guest_instr_add(cur_tblock->guest_instr_cnt);

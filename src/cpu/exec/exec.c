@@ -232,8 +232,9 @@ static inline void update_eip(void) {
   // when executing (interpreting) RTLs.
 }
 
+/* translate one instruction, return true if it is a control transfer instr */
 bool exec_wrapper(bool print_flag) {
-#if defined(DEBUG) || defined(DIFF_TEST)
+#if defined(DEBUG)
   vaddr_t ori_eip = cpu.eip;
 #endif
 
