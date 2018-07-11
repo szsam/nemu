@@ -10,6 +10,7 @@ typedef struct {
 	vaddr_t eip_end;
 	int guest_instr_cnt;
 	int rtl_instr_cnt;
+	bool has_saved_label;
 	RTLInstrListItem rtl_instr_list;
 	RTLInstr *rtl_instr_arr;
 
@@ -18,7 +19,7 @@ typedef struct {
 
 extern TranslationBlock *cur_tblock;
 
-void interpret_tblock(const TranslationBlock *);
+void interpret_tblock(TranslationBlock *);
 
 void optimize_tblock(TranslationBlock *);
 

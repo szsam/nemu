@@ -60,6 +60,7 @@ void cpu_exec(uint64_t n) {
 		cur_tblock->eip_start = cpu.eip;
 		cur_tblock->guest_instr_cnt = 0;
 		cur_tblock->rtl_instr_cnt = 0;
+		cur_tblock->has_saved_label = 0;
 		INIT_LIST_HEAD(&cur_tblock->rtl_instr_list.list);
 		HASH_ADD_INT(tblocks, eip_start, cur_tblock);
 

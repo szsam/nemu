@@ -29,18 +29,24 @@ typedef enum {
 	SET_CF, SET_OF, SET_ZF, SET_SF,
 	GET_CF, GET_OF, GET_ZF, GET_SF,
 
-	PIO_READ, PIO_WRITE
+	PIO_READ, PIO_WRITE,
+
+	EOB
 } RTLInstrOpcode;
 
 typedef struct  {
 	RTLInstrOpcode opcode;
-
-	rtlreg_t *r1;
-	const rtlreg_t *r2;
-	const rtlreg_t *r3;
-	const rtlreg_t *r4;
+	const void *op_handler_label;
 
 	union {
+		rtlreg_t *r1;
+		vaddr_t target;
+	};
+	const rtlreg_t *r2;
+	const rtlreg_t *r3;
+
+	union {
+		const rtlreg_t *r4;
 		uint32_t relop;
 		int state;
 		uint32_t imm;
@@ -48,7 +54,6 @@ typedef struct  {
 		int r;
 	};
 
-	vaddr_t target;
 }RTLInstr;
 
 typedef struct {
