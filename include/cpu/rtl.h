@@ -138,20 +138,25 @@ make_generate_rtl_setget_eflags(SF)
 void generate_rtl_pio_read(rtlreg_t *dest, const rtlreg_t *addr, int len);
 void generate_rtl_pio_write(const rtlreg_t *addr, const rtlreg_t *src, int len);
 
-/* RTL psuedo instructions */
+/* RTL pseudo instructions */
 
-static inline void rtl_lr(rtlreg_t* dest, int r, int width) {
+static inline void rtl_lr(rtlreg_t** dest, int r, int width) {
   switch (width) {
-    case 4: rtl_lr_l(dest, r); return;
-    case 1: rtl_lr_b(dest, r); return;
-    case 2: rtl_lr_w(dest, r); return;
+    case 4: // rtl_lr_l(*dest, r); return;
+		*dest = &reg_l(r); return;
+    case 1: rtl_lr_b(*dest, r); return;
+    case 2: rtl_lr_w(*dest, r); return;
     default: assert(0);
   }
 }
 
 static inline void rtl_sr(int r, int width, const rtlreg_t* src1) {
   switch (width) {
-    case 4: rtl_sr_l(r, src1); return;
+    case 4: // rtl_sr_l(r, src1); return;
+		if (&reg_l(r) != src1) {
+			rtl_sr_l(r, src1);
+		} 
+		return;
     case 1: rtl_sr_b(r, src1); return;
     case 2: rtl_sr_w(r, src1); return;
     default: assert(0);

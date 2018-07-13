@@ -245,6 +245,9 @@ bool exec_wrapper(bool print_flag) {
 
   decoding.seq_eip = cpu.eip;
   decoding.is_control = false;
+  id_src->val = &id_src->data;
+  id_src2->val = &id_src2->data;
+  id_dest->val = &id_dest->data;
   exec_real(&decoding.seq_eip);
 
 #ifdef DEBUG

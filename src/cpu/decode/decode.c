@@ -19,7 +19,7 @@ static inline make_DopHelper(I) {
   /* eip here is pointing to the immediate */
   op->type = OP_TYPE_IMM;
   op->imm = instr_fetch(eip, op->width);
-  rtl_li(&op->val, op->imm);
+  rtl_li(op->val, op->imm);
 
 #ifdef DEBUG
   snprintf(op->str, OP_STR_SIZE, "$0x%x", op->imm);
@@ -47,7 +47,7 @@ static inline make_DopHelper(SI) {
   if (op->width == 1)
 	  op->simm = (op->simm << 24) >> 24;
 
-  rtl_li(&op->val, op->simm);
+  rtl_li(op->val, op->simm);
 
 #ifdef DEBUG
   snprintf(op->str, OP_STR_SIZE, "$0x%x", op->simm);
@@ -105,7 +105,7 @@ static inline make_DopHelper(O) {
   op->type = OP_TYPE_MEM;
   rtl_li(&op->addr, instr_fetch(eip, 4));
   if (load_val) {
-    rtl_lm(&op->val, &op->addr, op->width);
+    rtl_lm(op->val, &op->addr, op->width);
   }
 
 #ifdef DEBUG
@@ -219,7 +219,7 @@ make_DHelper(SI2E) {
   id_src->width = 1;
   decode_op_SI(eip, id_src, true);
   if (id_dest->width == 2) {
-    id_src->val &= 0xffff;
+    *id_src->val &= 0xffff;
   }
 }
 
@@ -229,7 +229,7 @@ make_DHelper(SI_E2G) {
   id_src->width = 1;
   decode_op_SI(eip, id_src, true);
   if (id_dest->width == 2) {
-    id_src->val &= 0xffff;
+    *id_src->val &= 0xffff;
   }
 }
 
@@ -237,7 +237,7 @@ make_DHelper(gp2_1_E) {
   decode_op_rm(eip, id_dest, true, NULL, false);
   id_src->type = OP_TYPE_IMM;
   id_src->imm = 1;
-  rtl_li(&id_src->val, 1);
+  rtl_li(id_src->val, 1);
 #ifdef DEBUG
   sprintf(id_src->str, "$1");
 #endif
@@ -247,7 +247,7 @@ make_DHelper(gp2_cl2E) {
   decode_op_rm(eip, id_dest, true, NULL, false);
   id_src->type = OP_TYPE_REG;
   id_src->reg = R_CL;
-  rtl_lr_b(&id_src->val, R_CL);
+  rtl_lr_b(id_src->val, R_CL);
 #ifdef DEBUG
   sprintf(id_src->str, "%%cl");
 #endif
@@ -296,7 +296,7 @@ make_DHelper(in_I2a) {
 make_DHelper(in_dx2a) {
   id_src->type = OP_TYPE_REG;
   id_src->reg = R_DX;
-  rtl_lr_w(&id_src->val, R_DX);
+  rtl_lr_w(id_src->val, R_DX);
 #ifdef DEBUG
   sprintf(id_src->str, "(%%dx)");
 #endif
@@ -315,7 +315,7 @@ make_DHelper(out_a2dx) {
 
   id_dest->type = OP_TYPE_REG;
   id_dest->reg = R_DX;
-  rtl_lr_w(&id_dest->val, R_DX);
+  rtl_lr_w(id_dest->val, R_DX);
 #ifdef DEBUG
   sprintf(id_dest->str, "(%%dx)");
 #endif

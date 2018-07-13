@@ -160,7 +160,7 @@ void difftest_step(uint32_t eip, int nr_instr) {
     // nemu_state = NEMU_END;
     nemu_state = NEMU_ABORT;
 	if (i < 8) 
-		Log("%s: nemu:0x%x, qemu:0x%x", regsl[i], reg_l(i), r.array[i]);
+		Log("%s: nemu:0x%x, qemu:0x%x at eip=0x%x", regsl[i], reg_l(i), r.array[i], eip);
 	else Log("eip: nemu:0x%x, qemu:0x%x", cpu.eip, r.eip); 
   }
 }

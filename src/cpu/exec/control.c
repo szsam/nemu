@@ -20,7 +20,7 @@ make_EHelper(jcc) {
 }
 
 make_EHelper(jmp_rm) {
-  rtl_jr(&id_dest->val);
+  rtl_jr(id_dest->val);
 
   decoding.is_control = true;
   print_asm("jmp *%s", id_dest->str);
@@ -48,7 +48,7 @@ make_EHelper(ret) {
 make_EHelper(ret_i) {
   rtl_pop(&t0);
   rtl_jr(&t0);
-  rtl_add(&cpu.esp, &cpu.esp, &id_dest->val);
+  rtl_add(&cpu.esp, &cpu.esp, id_dest->val);
 
   decoding.is_control = true;
   print_asm("ret");
@@ -57,7 +57,7 @@ make_EHelper(ret_i) {
 make_EHelper(call_rm) {
   rtl_li(&t0, decoding.seq_eip);
   rtl_push(&t0);
-  rtl_jr(&id_dest->val);
+  rtl_jr(id_dest->val);
 
   decoding.is_control = true;
   print_asm("call *%s", id_dest->str);

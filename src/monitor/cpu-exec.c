@@ -31,6 +31,7 @@ TranslationBlock *cur_tblock = NULL;
 void monitor_statistic() {
   Log("total guest instructions = %" PRIu64, g_nr_guest_instr);
   Log("total RTL instructions = %" PRIu64, nr_rtl_instr);
+  Log("#rtl/#guest-instr = %lf", (double)nr_rtl_instr/g_nr_guest_instr);
   Log("Translation block hit rate: %f%%", 100.0 * (tot_tb - new_tb) / tot_tb);
 }
 
@@ -68,6 +69,8 @@ void cpu_exec(uint64_t n) {
 		do {
 			++cur_tblock->guest_instr_cnt;
 		}while(!exec_wrapper(print_flag));
+//		++cur_tblock->guest_instr_cnt;
+//		exec_wrapper(print_flag);
 
 		cur_tblock->eip_end = cpu.eip;
 
