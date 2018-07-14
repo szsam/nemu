@@ -7,7 +7,6 @@ void load_addr(vaddr_t *eip, ModR_M *m, Operand *rm) {
   int32_t disp = 0;
   int disp_size = 4;
   int base_reg = -1, index_reg = -1, scale = 0;
-  rtl_li(&rm->addr, 0);
 
   if (m->R_M == R_ESP) {
     SIB s;
@@ -32,17 +31,30 @@ void load_addr(vaddr_t *eip, ModR_M *m, Operand *rm) {
     /* has disp */
     disp = instr_fetch(eip, disp_size);
     if (disp_size == 1) { disp = (int8_t)disp; }
-
-    rtl_addi(&rm->addr, &rm->addr, disp);
-  }
-
-  if (base_reg != -1) {
-    rtl_add(&rm->addr, &rm->addr, &reg_l(base_reg));
   }
 
   if (index_reg != -1) {
     rtl_shli(&t1, &reg_l(index_reg), scale);
-    rtl_add(&rm->addr, &rm->addr, &t1);
+  }
+
+  if (base_reg != -1 && index_reg != -1) {
+    rtl_add(&rm->addr, &reg_l(base_reg), &t1);
+	if (disp_size != 0)
+      rtl_addi(&rm->addr, &rm->addr, disp);
+  }
+  else if (base_reg != -1) {
+	if (disp_size != 0)
+      rtl_addi(&rm->addr, &reg_l(base_reg), disp);
+	else
+	  rtl_mv(&rm->addr, &reg_l(base_reg));
+  }
+  else if (index_reg != -1) {
+    // must have disp
+    rtl_addi(&rm->addr, &t1, disp);
+  }
+  else {
+    // must have disp
+    rtl_li(&rm->addr, disp);
   }
 
 #ifdef DEBUG
