@@ -67,20 +67,20 @@ make_EHelper(cmp) {
 }
 
 make_EHelper(inc) {
-  rtl_addi(&t0, id_dest->val, 1);
-  operand_write(id_dest, &t0);
+  rtl_addi(id_dest->val, id_dest->val, 1);
+  operand_write(id_dest, id_dest->val);
 
-  rtl_update_ZFSF(&t0, id_dest->width);
+  rtl_update_ZFSF(id_dest->val, id_dest->width);
   // TODO update OF
 
   print_asm_template1(inc);
 }
 
 make_EHelper(dec) {
-  rtl_subi(&t0, id_dest->val, 1);
-  operand_write(id_dest, &t0);
+  rtl_subi(id_dest->val, id_dest->val, 1);
+  operand_write(id_dest, id_dest->val);
 
-  rtl_update_ZFSF(&t0, id_dest->width);
+  rtl_update_ZFSF(id_dest->val, id_dest->width);
   // TODO update OF
 
   print_asm_template1(dec);

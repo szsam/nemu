@@ -93,12 +93,15 @@ void dead_code_elimination(TranslationBlock *tb) {
 				}
 				break;
 
-			case LM: live[a2n(rtl->r2)] = 1; break;
+//			case LM: live[a2n(rtl->r2)] = 1; break;
+			make_dce_case1(LM, a2n(rtl->r1), a2n(rtl->r2))
 			case SM: live[a2n(rtl->r2)] = live[a2n(rtl->r3)] = 1; break;
 
 			make_dce_case1(LR_L, a2n(rtl->r1), rtl->r)
-			case LR_W: live[rtl->r] = 1; break;
-			case LR_B: live[rtl->r] = 1; break;
+			make_dce_case1(LR_W, a2n(rtl->r1), rtl->r)
+			make_dce_case1(LR_B, a2n(rtl->r1), rtl->r)
+//			case LR_W: live[rtl->r] = 1; break;
+//			case LR_B: live[rtl->r] = 1; break;
 
 			make_dce_case1(SR_L, rtl->r, a2n(rtl->r2))
 			case SR_W: live[a2n(rtl->r2)] = 1; break;

@@ -3,6 +3,7 @@
 #include "cpu/reg.h"
 
 void dead_code_elimination(TranslationBlock *);
+void constant_propogation(TranslationBlock *);
 
 // address to number
 int rtlreg_a2n(const rtlreg_t *r) {
@@ -24,6 +25,7 @@ int rtlreg_a2n(const rtlreg_t *r) {
 }
 
 void optimize_tblock(TranslationBlock *tb) {
+	constant_propogation(tb);
 	dead_code_elimination(tb);
 
 	tb->rtl_instr_arr = (RTLInstr *)calloc(tb->rtl_instr_cnt + 1, sizeof(RTLInstr));
