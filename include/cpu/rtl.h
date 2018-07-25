@@ -5,12 +5,13 @@
 // #include "util/c_op.h"
 #include "cpu/relop.h"
 #include "cpu/rtl-wrapper.h"
+#include "cpu/cc.h"
 // #include "cpu/rtl-generate.h"
 #include "util/list.h"
 
 extern rtlreg_t t0, t1, t2, t3, at;
 extern const rtlreg_t tzero;
-
+extern rtlreg_t cc_op, cc_res, cc_dest, cc_src;
 
 typedef enum {
 	J, JR, JRELOP, SETRELOP, EXIT, LI, LM, SM, 
@@ -29,6 +30,8 @@ typedef enum {
 	SET_CF, SET_OF, SET_ZF, SET_SF,
 	GET_CF, GET_OF, GET_ZF, GET_SF,
 
+	CC_SET_OP,
+
 	PIO_READ, PIO_WRITE,
 
 	EOB
@@ -44,9 +47,9 @@ typedef struct  {
 	};
 	const rtlreg_t *r2;
 	const rtlreg_t *r3;
+	const rtlreg_t *r4;
 
 	union {
-		const rtlreg_t *r4;
 		uint32_t relop;
 		int state;
 		uint32_t imm;
@@ -134,6 +137,9 @@ make_generate_rtl_setget_eflags(CF)
 make_generate_rtl_setget_eflags(OF)
 make_generate_rtl_setget_eflags(ZF)
 make_generate_rtl_setget_eflags(SF)
+
+void generate_rtl_cc_set_op(int, const rtlreg_t *res, 
+		const rtlreg_t *dest, const rtlreg_t *src);
 
 void generate_rtl_pio_read(rtlreg_t *dest, const rtlreg_t *addr, int len);
 void generate_rtl_pio_write(const rtlreg_t *addr, const rtlreg_t *src, int len);
@@ -227,29 +233,29 @@ static inline void rtl_msb(rtlreg_t* dest, const rtlreg_t* src1, int width) {
   rtl_andi(dest, dest, 0x1);
 }
 
-static inline void rtl_update_ZF(const rtlreg_t* result, int width) {
-  // eflags.ZF <- is_zero(result[width * 8 - 1 .. 0])
-  // cpu.eflags.ZF = (*result & mask) == 0;
-  if (width != 4) {
-    uint32_t mask = 0xffffffffu >> (32 - 8 * width);
-    rtl_andi(&at, result, mask);
-    rtl_eq0(&at, &at);
-  }
-  else
-    rtl_eq0(&at, result);
-  rtl_set_ZF(&at);
-}
-
-static inline void rtl_update_SF(const rtlreg_t* result, int width) {
-  // eflags.SF <- is_sign(result[width * 8 - 1 .. 0])
-  // cpu.eflags.SF = (*result >> (8 * width - 1)) & 0x1;
-  rtl_msb(&at, result, width);
-  rtl_set_SF(&at);
-}
-
-static inline void rtl_update_ZFSF(const rtlreg_t* result, int width) {
-  rtl_update_ZF(result, width);
-  rtl_update_SF(result, width);
-}
+// static inline void rtl_update_ZF(const rtlreg_t* result, int width) {
+//   // eflags.ZF <- is_zero(result[width * 8 - 1 .. 0])
+//   // cpu.eflags.ZF = (*result & mask) == 0;
+//   if (width != 4) {
+//     uint32_t mask = 0xffffffffu >> (32 - 8 * width);
+//     rtl_andi(&at, result, mask);
+//     rtl_eq0(&at, &at);
+//   }
+//   else
+//     rtl_eq0(&at, result);
+//   rtl_set_ZF(&at);
+// }
+// 
+// static inline void rtl_update_SF(const rtlreg_t* result, int width) {
+//   // eflags.SF <- is_sign(result[width * 8 - 1 .. 0])
+//   // cpu.eflags.SF = (*result >> (8 * width - 1)) & 0x1;
+//   rtl_msb(&at, result, width);
+//   rtl_set_SF(&at);
+// }
+// 
+// static inline void rtl_update_ZFSF(const rtlreg_t* result, int width) {
+//   rtl_update_ZF(result, width);
+//   rtl_update_SF(result, width);
+// }
 
 #endif

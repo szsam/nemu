@@ -54,7 +54,7 @@
 #define make_dce_get_eflags(opcode, flag, dest) \
 	case opcode: \
 		if (live[dest]) { \
-			live[dest] = 0; concat(live_, flag) = 1; \
+			live[dest] = 0; live_cc = 1; \
 		} \
 		else { \
 			list_del(&list_item->list); \
@@ -72,7 +72,8 @@ void dead_code_elimination(TranslationBlock *tb) {
 	bool live[NR_RTLREG] = {
 		1, 1, 1, 1, 1, 1, 1, 1, // eight GPRs are live, others are not live
 	};
-	bool live_CF = 1, live_OF = 1, live_ZF = 1, live_SF = 1;
+	// bool live_CF = 1, live_OF = 1, live_ZF = 1, live_SF = 1;
+	bool live_cc = 1;
 
 	list_for_each_entry_safe_prev(list_item, tmp, &tb->rtl_instr_list.list, list) {
 		RTLInstr *rtl = &list_item->rtl_instr;
@@ -107,10 +108,10 @@ void dead_code_elimination(TranslationBlock *tb) {
 			case SR_W: live[a2n(rtl->r2)] = 1; break;
 			case SR_B: live[a2n(rtl->r2)] = 1; break;
 
-			make_dce_set_eflags(SET_CF, CF, a2n(rtl->r2))
-			make_dce_set_eflags(SET_OF, OF, a2n(rtl->r2))
-			make_dce_set_eflags(SET_ZF, ZF, a2n(rtl->r2))
-			make_dce_set_eflags(SET_SF, SF, a2n(rtl->r2))
+//			make_dce_set_eflags(SET_CF, CF, a2n(rtl->r2))
+//			make_dce_set_eflags(SET_OF, OF, a2n(rtl->r2))
+//			make_dce_set_eflags(SET_ZF, ZF, a2n(rtl->r2))
+//			make_dce_set_eflags(SET_SF, SF, a2n(rtl->r2))
 
 			make_dce_get_eflags(GET_CF, CF, a2n(rtl->r1))
 			make_dce_get_eflags(GET_OF, OF, a2n(rtl->r1))
@@ -158,6 +159,17 @@ void dead_code_elimination(TranslationBlock *tb) {
 
 			case PIO_READ: live[a2n(rtl->r2)] = 1; break;
 			case PIO_WRITE: live[a2n(rtl->r2)] = live[a2n(rtl->r3)] = 1; break;
+
+			case CC_SET_OP:
+				if (live_cc) {
+					live[a2n(rtl->r2)] = live[a2n(rtl->r3)] = live[a2n(rtl->r4)] = 1;
+					live_cc = 0;
+				}
+				else {
+					list_del(&list_item->list);
+					free(list_item);
+					--tb->rtl_instr_cnt;
+				}
 
 			default: break;
 		}

@@ -4,11 +4,12 @@
 #include "nemu.h"
 #include "util/c_op.h"
 #include "cpu/relop.h"
-#include "cpu/rtl-wrapper.h"
+#include "cpu/rtl.h"
+// #include "cpu/rtl-wrapper.h"
 #include "device/port-io.h"
 
-extern rtlreg_t t0, t1, t2, t3, at;
-extern const rtlreg_t tzero;
+// extern rtlreg_t t0, t1, t2, t3, at;
+// extern const rtlreg_t tzero;
 
 void decoding_set_jmp(bool is_jmp);
 bool interpret_relop(uint32_t relop, const rtlreg_t src1, const rtlreg_t src2);
@@ -132,9 +133,7 @@ static inline void interpret_rtl_sr_b(int r, const rtlreg_t* src1) {
   static inline void concat(interpret_rtl_set_, f) (const rtlreg_t* src) { \
     cpu.eflags.f = *src; \
   } \
-  static inline void concat(interpret_rtl_get_, f) (rtlreg_t* dest) { \
-    *dest = cpu.eflags.f; \
-  }
+  void concat(interpret_rtl_get_, f) (rtlreg_t* dest);
 
 make_rtl_setget_eflags(CF)
 make_rtl_setget_eflags(OF)
@@ -149,6 +148,15 @@ void interpret_rtl_pio_read(rtlreg_t *dest, const rtlreg_t *addr, int len) {
 static inline
 void interpret_rtl_pio_write(const rtlreg_t *addr, const rtlreg_t *src, int len) {
 	pio_write(*addr, *src, len);
+}
+
+static inline
+void interpret_rtl_cc_set_op(int op, const rtlreg_t *res,
+		const rtlreg_t *dest, const rtlreg_t *src) {
+	cc_op = op;
+	cc_res = *res;
+	cc_dest = *dest;
+	cc_src = *src;
 }
 
 #endif

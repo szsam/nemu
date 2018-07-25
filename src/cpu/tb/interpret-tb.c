@@ -28,6 +28,8 @@ void interpret_tblock(TranslationBlock *tb) {
 		&&SET_CF, &&SET_OF, &&SET_ZF, &&SET_SF,
 		&&GET_CF, &&GET_OF, &&GET_ZF, &&GET_SF,
 
+		&&CC_SET_OP,
+
 		&&PIO_READ, &&PIO_WRITE,
 
 		&&EOB
@@ -124,6 +126,8 @@ void interpret_tblock(TranslationBlock *tb) {
 	make_interpret_rtl_case(PIO_READ, pio_read, rtl->r1, rtl->r2, rtl->len)
 	make_interpret_rtl_case(PIO_WRITE, pio_write, rtl->r2, rtl->r3, rtl->len)
 
+	make_interpret_rtl_case(CC_SET_OP, cc_set_op, 
+			rtl->imm, rtl->r2, rtl->r3, rtl->r4)
 	EOB: return;
 
 }

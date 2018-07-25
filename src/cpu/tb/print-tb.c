@@ -99,6 +99,9 @@ void print_tblock(const TranslationBlock *tb) {
 			make_print_rtl_case(PIO_READ, pio_read, "%s, (%s), %d", a2s(rtl->r1), a2s(rtl->r2), rtl->len)
 			make_print_rtl_case(PIO_WRITE, pio_write, "(%s), %s, %d", a2s(rtl->r2), a2s(rtl->r3), rtl->len)
 
+			make_print_rtl_case(CC_SET_OP, cc_set_op, "0x%x, %s, %s, %s", 
+					rtl->imm, a2s(rtl->r2), a2s(rtl->r3), a2s(rtl->r4))
+
 			default:
 				assert(0);
 		}

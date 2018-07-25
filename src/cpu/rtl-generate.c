@@ -214,3 +214,14 @@ void generate_rtl_pio_write(const rtlreg_t *addr, const rtlreg_t *src, int len) 
 	copy_param(len, len)
 	make_generate_rtl_epilogue()
 }
+
+void generate_rtl_cc_set_op(int op, const rtlreg_t *res,
+		const rtlreg_t *dest, const rtlreg_t *src) {
+	make_generate_rtl_prologue(CC_SET_OP)
+	copy_param(imm, op)
+	copy_param(r2, res)
+	copy_param(r3, dest)
+	copy_param(r4, src)
+	make_generate_rtl_epilogue()
+}
+

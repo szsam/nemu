@@ -147,6 +147,8 @@ void remove_redundant_sr(TranslationBlock *tb) {
 			case PIO_READ: live[a2n(rtl->r2)] = 1; break;
 			case PIO_WRITE: live[a2n(rtl->r2)] = live[a2n(rtl->r3)] = 1; break;
 
+			case CC_SET_OP: 
+				live[a2n(rtl->r2)] = live[a2n(rtl->r3)] = live[a2n(rtl->r4)] = 1;
 			default: break;
 		}
 	}
