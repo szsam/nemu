@@ -11,6 +11,7 @@ typedef struct {
 	int guest_instr_cnt;
 	int rtl_instr_cnt;
 	bool has_saved_label;
+	int exec_time;
 	RTLInstrListItem rtl_instr_list;
 	RTLInstr *rtl_instr_arr;
 
