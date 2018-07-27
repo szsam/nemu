@@ -5,6 +5,7 @@
 void dead_code_elimination(TranslationBlock *);
 void constant_propogation(TranslationBlock *);
 void remove_redundant_sr(TranslationBlock *tb);
+void optimize_jcc(TranslationBlock *tb);
 
 // address to number
 int rtlreg_a2n(const rtlreg_t *r) {
@@ -29,6 +30,7 @@ void optimize_tblock(TranslationBlock *tb) {
 	constant_propogation(tb);
 	dead_code_elimination(tb);
 	remove_redundant_sr(tb);
+	optimize_jcc(tb);
 
 	tb->rtl_instr_arr = (RTLInstr *)calloc(tb->rtl_instr_cnt + 1, sizeof(RTLInstr));
 	RTLInstrListItem *rtl_list_item;
