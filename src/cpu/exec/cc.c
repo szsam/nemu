@@ -87,9 +87,15 @@ void interpret_rtl_get_CF(rtlreg_t* dest)
 			*dest = __builtin_sub_overflow((uint16_t)cc_dest, (uint16_t)cc_src, &res);
 			break;
 		}
-		case MAKE_CC_OP(CC_OP_LOGIC, 4):
-		case MAKE_CC_OP(CC_OP_LOGIC, 1):
-		case MAKE_CC_OP(CC_OP_LOGIC, 2):
+		case MAKE_CC_OP(CC_OP_AND, 4):
+		case MAKE_CC_OP(CC_OP_AND, 1):
+		case MAKE_CC_OP(CC_OP_AND, 2):
+		case MAKE_CC_OP(CC_OP_OR, 4):
+		case MAKE_CC_OP(CC_OP_OR, 1):
+		case MAKE_CC_OP(CC_OP_OR, 2):
+		case MAKE_CC_OP(CC_OP_XOR, 4):
+		case MAKE_CC_OP(CC_OP_XOR, 1):
+		case MAKE_CC_OP(CC_OP_XOR, 2):
 		{
 			*dest = 0;
 			break;
@@ -121,9 +127,15 @@ void interpret_rtl_get_OF(rtlreg_t* dest)
 			*dest = __builtin_sub_overflow((int16_t)cc_dest, (int16_t)cc_src, &res);
 			break;
 		}
-		case MAKE_CC_OP(CC_OP_LOGIC, 4):
-		case MAKE_CC_OP(CC_OP_LOGIC, 1):
-		case MAKE_CC_OP(CC_OP_LOGIC, 2):
+		case MAKE_CC_OP(CC_OP_AND, 4):
+		case MAKE_CC_OP(CC_OP_AND, 1):
+		case MAKE_CC_OP(CC_OP_AND, 2):
+		case MAKE_CC_OP(CC_OP_OR, 4):
+		case MAKE_CC_OP(CC_OP_OR, 1):
+		case MAKE_CC_OP(CC_OP_OR, 2):
+		case MAKE_CC_OP(CC_OP_XOR, 4):
+		case MAKE_CC_OP(CC_OP_XOR, 1):
+		case MAKE_CC_OP(CC_OP_XOR, 2):
 		{
 			*dest = 0;
 			break;

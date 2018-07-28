@@ -14,7 +14,9 @@ static inline const char* get_cc_name(int subcode) {
 void rtl_setcc(rtlreg_t*, uint8_t);
 
 typedef enum {CC_OP_ADD, CC_OP_SUB, CC_OP_ADC, CC_OP_SBB, 
-	CC_OP_INC, CC_OP_DEC, CC_OP_NEG, CC_OP_LOGIC, CC_OP_SHIFT}CC_OP;
+	CC_OP_INC, CC_OP_DEC, CC_OP_NEG, 
+	CC_OP_AND, CC_OP_OR, CC_OP_XOR, 
+	CC_OP_SHIFT}CC_OP;
 
 #define MAKE_CC_OP(op, w) ((op << 3) | w)
 

@@ -1,6 +1,6 @@
 #include "cpu/tb.h"
 
-/* optimize cmpl+jcc
+/* optimize cmp+jcc
  * for example,
  *
  * rtl_sub(t0, ecx, esi)
@@ -27,9 +27,20 @@
 		rtl = &list_item->rtl_instr; \
 	}while(0)
 
+bool cc_op_satis(int this_cc_op, int the_cc_op, int relop) {
+	if (relop & 0x4) {
+		// signed, width must be 4
+		return (this_cc_op == MAKE_CC_OP(the_cc_op, 4));
+	}
+	else { 
+		// unsigned, width can be 4, 1, or 2
+		return ((this_cc_op >> 3) == the_cc_op);
+	}
+}
+
 void optimize_jcc_helper(TranslationBlock *tb, 
-		RTLInstrOpcode *op_arr, int op_arr_len, int relop) {
-	// 3 = sub + cc_set_op + jrelop
+		RTLInstrOpcode *op_arr, int op_arr_len, int relop, int the_cc_op) {
+	// 3 = sub/and + cc_set_op + jrelop
 	if (tb->rtl_instr_cnt < op_arr_len + 3) return;
 
 	struct list_head *head;
@@ -48,14 +59,26 @@ void optimize_jcc_helper(TranslationBlock *tb,
 	}
 
 	GET_PREV_RTL;
-	if (rtl->opcode != CC_SET_OP || rtl->imm != MAKE_CC_OP(CC_OP_SUB, 4))
-		return;
+	if (rtl->opcode != CC_SET_OP) return;
 
-	const rtlreg_t *the_dest = rtl->r3;
-	const rtlreg_t *the_src = rtl->r4;
-	last_rtl->relop = relop;
-	last_rtl->r2 = the_dest;
-	last_rtl->r3 = the_src;
+	if (!cc_op_satis(rtl->imm, the_cc_op, relop)) return;
+
+	if (the_cc_op == CC_OP_SUB) {
+		const rtlreg_t *the_dest = rtl->r3;
+		const rtlreg_t *the_src = rtl->r4;
+		last_rtl->relop = relop;
+		last_rtl->r2 = the_dest;
+		last_rtl->r3 = the_src;
+	}
+	else if (the_cc_op == CC_OP_AND) {
+		const rtlreg_t *the_dest = rtl->r3;
+		const rtlreg_t *the_src = rtl->r4;
+		if (the_dest != the_src) return;
+		last_rtl->relop = relop;
+		last_rtl->r2 = the_dest;
+		last_rtl->r3 = &tzero;
+	}
+	else return;
 
 	// remove the op_arr_len instructions before the last
 	head = tb->rtl_instr_list.list.prev;
@@ -73,52 +96,55 @@ void optimize_jcc_helper(TranslationBlock *tb,
 
 void optimize_jle(TranslationBlock *tb) {
 	static RTLInstrOpcode op_arr[] = { OR, GET_ZF, XOR, GET_OF, GET_SF };
-	optimize_jcc_helper(tb, op_arr, sizeof(op_arr)/sizeof(op_arr[0]), RELOP_LE);
+	optimize_jcc_helper(tb, op_arr, sizeof(op_arr)/sizeof(op_arr[0]), RELOP_LE, CC_OP_SUB);
+	optimize_jcc_helper(tb, op_arr, sizeof(op_arr)/sizeof(op_arr[0]), RELOP_LE, CC_OP_AND);
 }
 
 void optimize_jl(TranslationBlock *tb) {
 	static RTLInstrOpcode op_arr[] = { XOR, GET_OF, GET_SF };
-	optimize_jcc_helper(tb, op_arr, sizeof(op_arr)/sizeof(op_arr[0]), RELOP_LT);
+	optimize_jcc_helper(tb, op_arr, sizeof(op_arr)/sizeof(op_arr[0]), RELOP_LT, CC_OP_SUB);
 }
 
 void optimize_jbe(TranslationBlock *tb) {
 	static RTLInstrOpcode op_arr[] = { OR, GET_CF, GET_ZF };
-	optimize_jcc_helper(tb, op_arr, sizeof(op_arr)/sizeof(op_arr[0]), RELOP_LEU);
+	optimize_jcc_helper(tb, op_arr, sizeof(op_arr)/sizeof(op_arr[0]), RELOP_LEU, CC_OP_SUB);
 }
 
 void optimize_jb(TranslationBlock *tb) {
 	static RTLInstrOpcode op_arr[] = { GET_CF };
-	optimize_jcc_helper(tb, op_arr, sizeof(op_arr)/sizeof(op_arr[0]), RELOP_LTU);
+	optimize_jcc_helper(tb, op_arr, sizeof(op_arr)/sizeof(op_arr[0]), RELOP_LTU, CC_OP_SUB);
 }
 
 void optimize_jg(TranslationBlock *tb) {
 	static RTLInstrOpcode op_arr[] = { XORI, OR, GET_ZF, XOR, GET_OF, GET_SF };
-	optimize_jcc_helper(tb, op_arr, sizeof(op_arr)/sizeof(op_arr[0]), RELOP_GT);
+	optimize_jcc_helper(tb, op_arr, sizeof(op_arr)/sizeof(op_arr[0]), RELOP_GT, CC_OP_SUB);
 }
 
 void optimize_jge(TranslationBlock *tb) {
 	static RTLInstrOpcode op_arr[] = { XORI, XOR, GET_OF, GET_SF };
-	optimize_jcc_helper(tb, op_arr, sizeof(op_arr)/sizeof(op_arr[0]), RELOP_GE);
+	optimize_jcc_helper(tb, op_arr, sizeof(op_arr)/sizeof(op_arr[0]), RELOP_GE, CC_OP_SUB);
 }
 
 void optimize_ja(TranslationBlock *tb) {
 	static RTLInstrOpcode op_arr[] = { XORI, OR, GET_CF, GET_ZF };
-	optimize_jcc_helper(tb, op_arr, sizeof(op_arr)/sizeof(op_arr[0]), RELOP_GTU);
+	optimize_jcc_helper(tb, op_arr, sizeof(op_arr)/sizeof(op_arr[0]), RELOP_GTU, CC_OP_SUB);
 }
 
 void optimize_jae(TranslationBlock *tb) {
 	static RTLInstrOpcode op_arr[] = { XORI, GET_CF };
-	optimize_jcc_helper(tb, op_arr, sizeof(op_arr)/sizeof(op_arr[0]), RELOP_GEU);
+	optimize_jcc_helper(tb, op_arr, sizeof(op_arr)/sizeof(op_arr[0]), RELOP_GEU, CC_OP_SUB);
 }
 
 void optimize_jne(TranslationBlock *tb) {
 	static RTLInstrOpcode op_arr[] = { XORI, GET_ZF };
-	optimize_jcc_helper(tb, op_arr, sizeof(op_arr)/sizeof(op_arr[0]), RELOP_NE);
+	optimize_jcc_helper(tb, op_arr, sizeof(op_arr)/sizeof(op_arr[0]), RELOP_NE, CC_OP_SUB);
+	optimize_jcc_helper(tb, op_arr, sizeof(op_arr)/sizeof(op_arr[0]), RELOP_NE, CC_OP_AND);
 }
 
 void optimize_je(TranslationBlock *tb) {
 	static RTLInstrOpcode op_arr[] = { GET_ZF };
-	optimize_jcc_helper(tb, op_arr, sizeof(op_arr)/sizeof(op_arr[0]), RELOP_EQ);
+	optimize_jcc_helper(tb, op_arr, sizeof(op_arr)/sizeof(op_arr[0]), RELOP_EQ, CC_OP_SUB);
+	// optimize_jcc_helper(tb, op_arr, sizeof(op_arr)/sizeof(op_arr[0]), RELOP_EQ, CC_OP_AND);
 }
 
 void optimize_jcc(TranslationBlock *tb) {

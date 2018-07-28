@@ -39,24 +39,24 @@ void monitor_statistic() {
   Log("Translation block hit rate: %f%%", 100.0 * (tot_tb - new_tb) / tot_tb);
 
   HASH_SORT(tblocks, exec_time_sort);
-
+ 
   TranslationBlock *tb;
   int cnt = 0;
   for (tb = tblocks; tb != NULL && cnt < 10; tb = tb->hh.next, ++cnt) {
-	  printf("eip: [0x%x, 0x%x) #guest-instr: %d, #rtl-instr: %d, #exec: %d\n",
-			  tb->eip_start, tb->eip_end, 
-			  tb->guest_instr_cnt, tb->rtl_instr_cnt,
-			  tb->exec_time);
+     printf("eip: [0x%x, 0x%x) #guest-instr: %d, #rtl-instr: %d, #exec: %d\n",
+   		  tb->eip_start, tb->eip_end, 
+   		  tb->guest_instr_cnt, tb->rtl_instr_cnt,
+   		  tb->exec_time);
   }
   printf("\n");
   cnt = 0;
   for (tb = tblocks; tb != NULL && cnt < 10; tb = tb->hh.next, ++cnt) {
-	  Log("eip: [0x%x, 0x%x) #guest-instr: %d, #rtl-instr: %d, #exec: %d",
-			  tb->eip_start, tb->eip_end, 
-			  tb->guest_instr_cnt, tb->rtl_instr_cnt,
-			  tb->exec_time);
-	  print_tblock(tb);
-	
+     Log("eip: [0x%x, 0x%x) #guest-instr: %d, #rtl-instr: %d, #exec: %d",
+   		  tb->eip_start, tb->eip_end, 
+   		  tb->guest_instr_cnt, tb->rtl_instr_cnt,
+   		  tb->exec_time);
+     print_tblock(tb);
+   
   }
 
 }

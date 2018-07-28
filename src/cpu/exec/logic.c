@@ -3,8 +3,8 @@
 
 make_EHelper(test) {
   rtl_and(&t0, id_src->val, id_dest->val);
-  rtl_cc_set_op(MAKE_CC_OP(CC_OP_LOGIC, id_dest->width), 
-		  &t0, &tzero, &tzero);
+  rtl_cc_set_op(MAKE_CC_OP(CC_OP_AND, id_dest->width), 
+		  &t0, id_dest->val, id_src->val);
 
 //  rtl_set_CF(&tzero);
 //  rtl_set_OF(&tzero);
@@ -16,7 +16,7 @@ make_EHelper(test) {
 make_EHelper(and) {
   rtl_and(id_dest->val, id_src->val, id_dest->val);
   operand_write(id_dest, id_dest->val);
-  rtl_cc_set_op(MAKE_CC_OP(CC_OP_LOGIC, id_dest->width), 
+  rtl_cc_set_op(MAKE_CC_OP(CC_OP_AND, id_dest->width), 
 		  id_dest->val, &tzero, &tzero);
 
 //  rtl_set_CF(&tzero);
@@ -29,7 +29,7 @@ make_EHelper(and) {
 make_EHelper(xor) {
   rtl_xor(id_dest->val, id_src->val, id_dest->val);
   operand_write(id_dest, id_dest->val);
-  rtl_cc_set_op(MAKE_CC_OP(CC_OP_LOGIC, id_dest->width), 
+  rtl_cc_set_op(MAKE_CC_OP(CC_OP_XOR, id_dest->width), 
 		  id_dest->val, &tzero, &tzero);
 
 //  rtl_set_CF(&tzero);
@@ -42,7 +42,7 @@ make_EHelper(xor) {
 make_EHelper(or) {
   rtl_or(id_dest->val, id_src->val, id_dest->val);
   operand_write(id_dest, id_dest->val);
-  rtl_cc_set_op(MAKE_CC_OP(CC_OP_LOGIC, id_dest->width), 
+  rtl_cc_set_op(MAKE_CC_OP(CC_OP_OR, id_dest->width), 
 		  id_dest->val, &tzero, &tzero);
 
 //  rtl_set_CF(&tzero);
