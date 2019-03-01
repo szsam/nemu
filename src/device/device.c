@@ -33,8 +33,7 @@ static void timer_sig_handler(int signum) {
     update_screen_flag = true;
   }
 
-  // int ret = setitimer(ITIMER_VIRTUAL, &it, NULL);
-  int ret = setitimer(ITIMER_REAL, &it, NULL);
+  int ret = setitimer(ITIMER_VIRTUAL, &it, NULL);
   Assert(ret == 0, "Can not set timer");
 }
 
@@ -88,14 +87,12 @@ void init_device() {
   memset(&s, 0, sizeof(s));
   s.sa_handler = timer_sig_handler;
   s.sa_flags = SA_RESTART;
-  // int ret = sigaction(SIGVTALRM, &s, NULL);
-  int ret = sigaction(SIGALRM, &s, NULL);
+  int ret = sigaction(SIGVTALRM, &s, NULL);
   Assert(ret == 0, "Can not set signal handler");
 
   it.it_value.tv_sec = 0;
   it.it_value.tv_usec = 1000000 / TIMER_HZ;
-  // ret = setitimer(ITIMER_VIRTUAL, &it, NULL);
-  ret = setitimer(ITIMER_REAL, &it, NULL);
+  ret = setitimer(ITIMER_VIRTUAL, &it, NULL);
   Assert(ret == 0, "Can not set timer");
 }
 #else
