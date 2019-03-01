@@ -30,7 +30,7 @@ void optimize_tblock(TranslationBlock *tb) {
 	constant_propogation(tb);
 	dead_code_elimination(tb);
 	remove_redundant_sr(tb);
-	optimize_jcc(tb);
+//	optimize_jcc(tb);
 
 	tb->rtl_instr_arr = (RTLInstr *)calloc(tb->rtl_instr_cnt + 1, sizeof(RTLInstr));
 	RTLInstrListItem *rtl_list_item;
