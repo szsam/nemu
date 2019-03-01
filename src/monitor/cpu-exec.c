@@ -35,30 +35,23 @@ int exec_time_sort(const TranslationBlock *a, const TranslationBlock *b) {
 void monitor_statistic() {
   Log("total guest instructions = %" PRIu64, g_nr_guest_instr);
   Log("total RTL instructions = %" PRIu64, nr_rtl_instr);
-  Log("#rtl/#guest-instr = %lf", (double)nr_rtl_instr/g_nr_guest_instr);
-  Log("Translation block hit rate: %f%%", 100.0 * (tot_tb - new_tb) / tot_tb);
+  Log("#rtl/#guest = %lf", (double)nr_rtl_instr/g_nr_guest_instr);
+  Log("Translation block hit rate = %f%%", 100.0 * (tot_tb - new_tb) / tot_tb);
 
+  // sort blocks on their times of execution
   HASH_SORT(tblocks, exec_time_sort);
  
+  // print top 10 blocks
   TranslationBlock *tb;
   int cnt = 0;
   for (tb = tblocks; tb != NULL && cnt < 10; tb = tb->hh.next, ++cnt) {
-     printf("eip: [0x%x, 0x%x) #guest-instr: %d, #rtl-instr: %d, #exec: %d\n",
+     printflog("[0x%x, 0x%x) #guest = %d #rtl = %d #exec: %d\n",
    		  tb->eip_start, tb->eip_end, 
    		  tb->guest_instr_cnt, tb->rtl_instr_cnt,
    		  tb->exec_time);
+//	 print_tblock(tb);
+//	 printflog("\n");
   }
-  printf("\n");
-  cnt = 0;
-  for (tb = tblocks; tb != NULL && cnt < 10; tb = tb->hh.next, ++cnt) {
-     Log("eip: [0x%x, 0x%x) #guest-instr: %d, #rtl-instr: %d, #exec: %d",
-   		  tb->eip_start, tb->eip_end, 
-   		  tb->guest_instr_cnt, tb->rtl_instr_cnt,
-   		  tb->exec_time);
-     print_tblock(tb);
-   
-  }
-
 }
 
 /* Simulate how the CPU works. */
@@ -96,22 +89,19 @@ void cpu_exec(uint64_t n) {
 		do {
 			++cur_tblock->guest_instr_cnt;
 		}while(!exec_wrapper(print_flag));
-//		++cur_tblock->guest_instr_cnt;
-//		exec_wrapper(print_flag);
+		// ++cur_tblock->guest_instr_cnt;
+		// exec_wrapper(print_flag);
 
 		cur_tblock->eip_end = cpu.eip;
 
 		optimize_tblock(cur_tblock);
 
 		++new_tb;
-//		Log("New translation block. eip: [0x%x, 0x%x) #guest-instr: %d, $rtl-instr: %d",
-//				cur_tblock->eip_start, cur_tblock->eip_end, 
-//				cur_tblock->guest_instr_cnt, cur_tblock->rtl_instr_cnt);
-//		print_tblock(cur_tblock);
+		Log_write("New translation block. [0x%x, 0x%x) #guest = %d, #rtl = %d\n",
+				cur_tblock->eip_start, cur_tblock->eip_end, 
+				cur_tblock->guest_instr_cnt, cur_tblock->rtl_instr_cnt);
+		print_tblock(cur_tblock);
 	}
-//  else
-//		Log("Hit translation block. eip_start: 0x%x, eip_end: 0x%x, #instr: %d",
-//				cur_tblock->eip_start, cur_tblock->eip_end, cur_tblock->guest_instr_cnt);
 
 	// execute a basic block
 	cpu.eip = cur_tblock->eip_end;

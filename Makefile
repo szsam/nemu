@@ -38,16 +38,13 @@ ARGS ?= -l $(BUILD_DIR)/nemu-log.txt
 NEMU_EXEC := $(BINARY) $(ARGS)
 
 $(BINARY): $(OBJS)
-	$(call git_commit, "compile")
 	@echo + LD $@
 	@$(LD) -O2 -o $@ $^ -lSDL2 -lreadline
 
 run: $(BINARY)
-	$(call git_commit, "run")
 	$(NEMU_EXEC)
 
 gdb: $(BINARY)
-	$(call git_commit, "gdb")
 	gdb -s $(BINARY) --args $(NEMU_EXEC)
 
 clean: 

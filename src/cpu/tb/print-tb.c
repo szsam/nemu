@@ -11,7 +11,7 @@ const char * const rtlreg_str[] = {
 
 #define make_print_rtl_case(opcode, name, fmtstr, ...) \
 	case opcode: \
-		printf("rtl_" #name "(" fmtstr ")\n", __VA_ARGS__); \
+		Log_write("rtl_" #name "(" fmtstr ")\n", __VA_ARGS__); \
 		break;
 
 // rtl register: address to string
