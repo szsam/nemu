@@ -12,7 +12,7 @@
  */
 #define MAX_INSTR_TO_PRINT 10
 
-int nemu_state = NEMU_STOP;
+volatile sig_atomic_t nemu_state = NEMU_STOP;
 
 bool exec_wrapper(bool);
 
@@ -135,6 +135,9 @@ void cpu_exec(uint64_t n) {
       }
       else if (nemu_state == NEMU_ABORT) {
         printflog("\33[1;31mnemu: ABORT\33[0m at eip = 0x%08x\n\n", cpu.eip);
+      }
+      else if (nemu_state == NEMU_INTERRUPT) {
+		printf("\nInterrupt.\n");
       }
 	  return;
     }

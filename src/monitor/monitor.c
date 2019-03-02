@@ -1,5 +1,7 @@
 #include "nemu.h"
+#include "monitor/monitor.h"
 #include <unistd.h>
+#include <signal.h>
 
 #define ENTRY_START 0x100000
 
@@ -126,6 +128,19 @@ static inline void parse_args(int argc, char *argv[]) {
   }
 }
 
+static void sigint_handler(int signum) {
+	nemu_state = NEMU_INTERRUPT;
+}
+
+static void set_sigint_handler() {
+  struct sigaction act;
+  memset(&act, 0, sizeof(act));
+  act.sa_handler = sigint_handler;
+  act.sa_flags = SA_RESTART;
+  int ret = sigaction(SIGINT, &act, NULL);
+  Assert(ret == 0, "Can not set signal handler");
+}
+
 int init_monitor(int argc, char *argv[]) {
   /* Perform some global initialization. */
 
@@ -157,6 +172,9 @@ int init_monitor(int argc, char *argv[]) {
 
   /* Initialize devices. */
   init_device();
+
+  /* Install the handler of SIGINT */
+  set_sigint_handler();
 
   /* Display welcome message. */
   welcome();
