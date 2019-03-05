@@ -29,6 +29,8 @@ typedef struct {
   			 * in PA2 able to directly access these registers.
   			 */
   			rtlreg_t eax, ecx, edx, ebx, esp, ebp, esi, edi;
+
+			rtlreg_t cc_op, cc_res, cc_dest, cc_src;
         };
     };
 

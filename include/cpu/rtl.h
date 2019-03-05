@@ -11,7 +11,7 @@
 
 extern rtlreg_t t0, t1, t2, t3, at;
 extern const rtlreg_t tzero;
-extern rtlreg_t cc_op, cc_res, cc_dest, cc_src;
+// extern rtlreg_t cc_op, cc_res, cc_dest, cc_src;
 
 typedef enum {
 	J, JR, JRELOP, SETRELOP, EXIT, LI, LM, SM, 

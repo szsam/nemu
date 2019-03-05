@@ -1,7 +1,7 @@
 #include "cpu/rtl.h"
 
 /* Condition Code */
-rtlreg_t cc_op, cc_res, cc_dest, cc_src;
+// rtlreg_t cc_op, cc_res, cc_dest, cc_src;
 
 void rtl_setcc(rtlreg_t* dest, uint8_t subcode) {
   bool invert = subcode & 0x1;
@@ -47,44 +47,44 @@ void rtl_setcc(rtlreg_t* dest, uint8_t subcode) {
 
 void interpret_rtl_get_ZF(rtlreg_t* dest)
 {
-	int width = cc_op & 0x7;
+	int width = cpu.cc_op & 0x7;
 	uint32_t mask = (~0u >> ((4 - width) << 3));
-	*dest = ((cc_res & mask) == 0);
+	*dest = ((cpu.cc_res & mask) == 0);
 }
 
 void interpret_rtl_get_SF(rtlreg_t* dest)
 {
-	int width = cc_op & 0x7;
+	int width = cpu.cc_op & 0x7;
 	int n = width * 8 - 1;
-	*dest = (cc_res >> n) & 0x1;
+	*dest = (cpu.cc_res >> n) & 0x1;
 }
 
 void interpret_rtl_get_CF(rtlreg_t* dest)
 {
-	switch (cc_op)
+	switch (cpu.cc_op)
 	{
 		case MAKE_CC_OP(CC_OP_ADD, 4):
 		{
-			uint32_t res = cc_res;
-			*dest = __builtin_add_overflow((uint32_t)cc_dest, (uint32_t)cc_src, &res);
+			uint32_t res = cpu.cc_res;
+			*dest = __builtin_add_overflow((uint32_t)cpu.cc_dest, (uint32_t)cpu.cc_src, &res);
 			break;
 		}
 		case MAKE_CC_OP(CC_OP_SUB, 4):
 		{
-			uint32_t res = cc_res;
-			*dest = __builtin_sub_overflow((uint32_t)cc_dest, (uint32_t)cc_src, &res);
+			uint32_t res = cpu.cc_res;
+			*dest = __builtin_sub_overflow((uint32_t)cpu.cc_dest, (uint32_t)cpu.cc_src, &res);
 			break;
 		}
 		case MAKE_CC_OP(CC_OP_SUB, 1):
 		{
-			uint8_t res = cc_res;
-			*dest = __builtin_sub_overflow((uint8_t)cc_dest, (uint8_t)cc_src, &res);
+			uint8_t res = cpu.cc_res;
+			*dest = __builtin_sub_overflow((uint8_t)cpu.cc_dest, (uint8_t)cpu.cc_src, &res);
 			break;
 		}
 		case MAKE_CC_OP(CC_OP_SUB, 2):
 		{
-			uint16_t res = cc_res;
-			*dest = __builtin_sub_overflow((uint16_t)cc_dest, (uint16_t)cc_src, &res);
+			uint16_t res = cpu.cc_res;
+			*dest = __builtin_sub_overflow((uint16_t)cpu.cc_dest, (uint16_t)cpu.cc_src, &res);
 			break;
 		}
 		case MAKE_CC_OP(CC_OP_AND, 4):
@@ -107,24 +107,24 @@ void interpret_rtl_get_CF(rtlreg_t* dest)
 
 void interpret_rtl_get_OF(rtlreg_t* dest)
 {
-	switch (cc_op)
+	switch (cpu.cc_op)
 	{
 		case MAKE_CC_OP(CC_OP_SUB, 4):
 		{
-			int32_t res = cc_res;
-			*dest = __builtin_sub_overflow((int32_t)cc_dest, (int32_t)cc_src, &res);
+			int32_t res = cpu.cc_res;
+			*dest = __builtin_sub_overflow((int32_t)cpu.cc_dest, (int32_t)cpu.cc_src, &res);
 			break;
 		}
 		case MAKE_CC_OP(CC_OP_SUB, 1):
 		{
-			int8_t res = cc_res;
-			*dest = __builtin_sub_overflow((int8_t)cc_dest, (int8_t)cc_src, &res);
+			int8_t res = cpu.cc_res;
+			*dest = __builtin_sub_overflow((int8_t)cpu.cc_dest, (int8_t)cpu.cc_src, &res);
 			break;
 		}
 		case MAKE_CC_OP(CC_OP_SUB, 2):
 		{
-			int16_t res = cc_res;
-			*dest = __builtin_sub_overflow((int16_t)cc_dest, (int16_t)cc_src, &res);
+			int16_t res = cpu.cc_res;
+			*dest = __builtin_sub_overflow((int16_t)cpu.cc_dest, (int16_t)cpu.cc_src, &res);
 			break;
 		}
 		case MAKE_CC_OP(CC_OP_AND, 4):

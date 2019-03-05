@@ -153,10 +153,10 @@ void interpret_rtl_pio_write(const rtlreg_t *addr, const rtlreg_t *src, int len)
 static inline
 void interpret_rtl_cc_set_op(int op, const rtlreg_t *res,
 		const rtlreg_t *dest, const rtlreg_t *src) {
-	cc_op = op;
-	cc_res = *res;
-	cc_dest = *dest;
-	cc_src = *src;
+	cpu.cc_op = op;
+	cpu.cc_res = *res;
+	cpu.cc_dest = *dest;
+	cpu.cc_src = *src;
 }
 
 #endif
