@@ -60,3 +60,17 @@ void init_i8042() {
   i8042_data_port_base = add_pio_map(I8042_DATA_PORT, 4, i8042_data_io_handler);
   i8042_data_port_base[0] = _KEY_NONE;
 }
+
+int save_key_queue(FILE *fp) {
+	return (fwrite(key_queue, sizeof(int), KEY_QUEUE_LEN, fp) == KEY_QUEUE_LEN)
+		&& (fwrite(&key_f, sizeof(int), 1, fp) == 1)
+		&& (fwrite(&key_r, sizeof(int), 1, fp) == 1)
+		? 0 : -1;
+}
+
+int load_key_queue(FILE *fp) {
+	return (fread(key_queue, sizeof(int), KEY_QUEUE_LEN, fp) == KEY_QUEUE_LEN)
+		&& (fread(&key_f, sizeof(int), 1, fp) == 1)
+		&& (fread(&key_r, sizeof(int), 1, fp) == 1)
+		? 0 : -1;
+}

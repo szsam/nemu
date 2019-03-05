@@ -2,6 +2,7 @@
 #include "monitor/expr.h"
 #include "monitor/watchpoint.h"
 #include "nemu.h"
+#include "device/mmio.h"
 
 #include <stdlib.h>
 #include <readline/readline.h>
@@ -52,6 +53,10 @@ static int cmd_d(char *args);
 
 static int cmd_bt(char *args);
 
+static int cmd_savevm(char *args);
+
+static int cmd_loadvm(char *args);
+
 static struct {
   char *name;
   char *description;
@@ -69,7 +74,8 @@ static struct {
   { "w", "Set an watchpoint for an expression: w EXPR", cmd_w },
   { "d", "Delete a watchpoint: d N", cmd_d },
   { "bt", "Print backtrace of all stack frames", cmd_bt },
-
+  { "savevm", "Save a VM snapshot to a file: savevm PATH", cmd_savevm },
+  { "loadvm", "Restore a VM snapshot from a file: loadvm PATH", cmd_loadvm },
 };
 
 #define NR_CMD (sizeof(cmd_table) / sizeof(cmd_table[0]))
@@ -242,6 +248,52 @@ static int cmd_bt(char *args) {
 //		pc = swaddr_read(frame_ptr + 4, 4, R_SS);
 //		frame_ptr = swaddr_read(frame_ptr, 4, R_SS);
 //	}
+	return 0;
+}
+
+static int cmd_savevm(char *args) {
+	char *arg = strtok(NULL, " ");
+	FILE *fp = fopen(arg, "wb");
+	if (!fp) {
+		fprintf(stderr, "Cannot open '%s'\n", arg);
+		return 0;
+	}
+
+	extern int save_key_queue(FILE *);
+
+	int success = (fwrite(&cpu, sizeof(cpu), 1, fp) == 1)
+			   && (save_pmem(fp) == 0)
+			   && (save_mmio_space_pool(fp) == 0)
+			   && (save_key_queue(fp) == 0);
+
+	if (!success)
+		fprintf(stderr, "Fail to load the snapshot '%s'\n", arg);
+	fclose(fp);
+	return 0;
+}
+
+static int cmd_loadvm(char *args) {
+	char *arg = strtok(NULL, " ");
+	FILE *fp = fopen(arg, "rb");
+	if (!fp) {
+		fprintf(stderr, "Cannot open '%s'\n", arg);
+		return 0;
+	}
+
+	extern int load_key_queue(FILE *);
+
+	int success = (fread(&cpu, sizeof(cpu), 1, fp) == 1)
+			   && (load_pmem(fp) == 0)
+			   && (load_mmio_space_pool(fp) == 0)
+			   && (load_key_queue(fp) == 0);
+
+	if (success) {
+		extern void update_screen();
+		update_screen();
+	}
+	else
+		fprintf(stderr, "Fail to load the snapshot '%s'\n", arg);
+	fclose(fp);
 	return 0;
 }
 

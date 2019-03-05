@@ -72,3 +72,14 @@ void mmio_write(paddr_t addr, int len, uint32_t data, int map_NO) {
     map->callback(addr, len, true);
   }
 }
+
+/* snapshot interface */
+int save_mmio_space_pool(FILE *fp) {
+	size_t ret = fwrite(mmio_space_pool, sizeof(uint8_t), MMIO_SPACE_MAX, fp);
+	return ret == MMIO_SPACE_MAX ? 0 : -1;
+}
+
+int load_mmio_space_pool(FILE *fp) {
+	size_t ret = fread(mmio_space_pool, sizeof(uint8_t), MMIO_SPACE_MAX, fp);
+	return ret == MMIO_SPACE_MAX ? 0 : -1;
+}

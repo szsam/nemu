@@ -11,4 +11,7 @@ int is_mmio(paddr_t);
 uint32_t mmio_read(paddr_t, int, int);
 void mmio_write(paddr_t, int, uint32_t, int);
 
+int save_mmio_space_pool(FILE *);
+int load_mmio_space_pool(FILE *);
+
 #endif

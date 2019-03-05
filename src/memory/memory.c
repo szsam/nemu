@@ -10,6 +10,16 @@
 
 uint8_t pmem[PMEM_SIZE];
 
+int save_pmem(FILE *fp) {
+	size_t ret = fwrite(pmem, sizeof(uint8_t), PMEM_SIZE, fp);
+	return ret == PMEM_SIZE ? 0 : -1;
+}
+
+int load_pmem(FILE *fp) {
+	size_t ret = fread(pmem, sizeof(uint8_t), PMEM_SIZE, fp);
+	return ret == PMEM_SIZE ? 0 : -1;
+}
+
 /* Memory accessing interfaces */
 
 uint32_t paddr_read(paddr_t addr, int len) {
