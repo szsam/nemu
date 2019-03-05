@@ -2,6 +2,7 @@
 #include "monitor/expr.h"
 #include "monitor/watchpoint.h"
 #include "nemu.h"
+#include "device/device.h"
 #include "device/mmio.h"
 
 #include <stdlib.h>
@@ -259,8 +260,6 @@ static int cmd_savevm(char *args) {
 		return 0;
 	}
 
-	extern int save_key_queue(FILE *);
-
 	int success = (fwrite(&cpu, sizeof(cpu), 1, fp) == 1)
 			   && (save_pmem(fp) == 0)
 			   && (save_mmio_space_pool(fp) == 0)
@@ -280,15 +279,12 @@ static int cmd_loadvm(char *args) {
 		return 0;
 	}
 
-	extern int load_key_queue(FILE *);
-
 	int success = (fread(&cpu, sizeof(cpu), 1, fp) == 1)
 			   && (load_pmem(fp) == 0)
 			   && (load_mmio_space_pool(fp) == 0)
 			   && (load_key_queue(fp) == 0);
 
 	if (success) {
-		extern void update_screen();
 		update_screen();
 	}
 	else

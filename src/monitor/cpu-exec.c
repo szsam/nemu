@@ -4,6 +4,7 @@
 #include "monitor/monitor.h"
 #include "monitor/watchpoint.h"
 #include "cpu/tb.h"
+#include "device/device.h"
 
 /* The assembly code of instructions executed is only output to the screen
  * when the number of instructions executed is less than this value.
@@ -123,7 +124,6 @@ void cpu_exec(uint64_t n) {
 #endif
 
 #ifdef HAS_IOE
-    extern void device_update();
     device_update();
 #endif
 

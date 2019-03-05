@@ -2,6 +2,8 @@
 
 #ifdef HAS_IOE
 
+#include "device/device.h"
+
 #include <sys/time.h>
 #include <signal.h>
 #include <SDL2/SDL.h>
@@ -13,15 +15,6 @@ static uint64_t jiffy = 0;
 static struct itimerval it;
 static int device_update_flag = false;
 static int update_screen_flag = false;
-
-void init_serial();
-void init_timer();
-void init_vga();
-void init_i8042();
-
-extern void timer_intr();
-extern void send_key(uint8_t, bool);
-extern void update_screen();
 
 
 static void timer_sig_handler(int signum) {
