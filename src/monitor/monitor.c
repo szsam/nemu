@@ -2,6 +2,7 @@
 #include "monitor/monitor.h"
 #include <unistd.h>
 #include <signal.h>
+#include <getopt.h>
 
 #define ENTRY_START 0x100000
 
@@ -18,6 +19,9 @@ FILE *log_fp = NULL;
 static char *log_file = NULL;
 static char *img_file = NULL;
 static int is_batch_mode = false;
+int rr_mode = RR_NONE;
+FILE *rrlog_fp = NULL;
+static char *rrlog_file = NULL;
 
 static inline void init_log() {
 #ifdef DEBUG
@@ -25,6 +29,20 @@ static inline void init_log() {
   log_fp = fopen(log_file, "w");
   Assert(log_fp, "Can not open '%s'", log_file);
 #endif
+}
+
+static inline void init_rrlog() {
+  if (rr_mode == RR_NONE) return;
+
+  if (rrlog_file == NULL)
+	  panic("Must specify a log file for record/replay (use --rrlog)");
+
+  if (rr_mode == RR_RECORD)
+	  rrlog_fp = fopen(rrlog_file, "wb");
+  else
+	  rrlog_fp = fopen(rrlog_file, "rb");
+
+  Assert(rrlog_fp, "Can not open '%s'", rrlog_file);
 }
 
 static inline void welcome() {
@@ -113,9 +131,20 @@ static inline void restart() {
 }
 
 static inline void parse_args(int argc, char *argv[]) {
+  static struct option long_options[] = {
+    {"record", no_argument, &rr_mode, RR_RECORD },
+    {"replay", no_argument, &rr_mode, RR_REPLAY },
+    {"rrlog", required_argument, 0, 0 },
+	{ 0, 0, 0, 0}
+  };
   int o;
-  while ( (o = getopt(argc, argv, "-bl:")) != -1) {
+  int option_index;
+
+  while ( (o = getopt_long(argc, argv, "-bl:", long_options, &option_index)) != -1) {
     switch (o) {
+      case 0:   
+                if (option_index == 2) rrlog_file = optarg;
+			   	break;
       case 'b': is_batch_mode = true; break;
       case 'l': log_file = optarg; break;
       case 1:
@@ -123,7 +152,7 @@ static inline void parse_args(int argc, char *argv[]) {
                 else img_file = optarg;
                 break;
       default:
-                panic("Usage: %s [-b] [-l log_file] [img_file]", argv[0]);
+                panic("Usage: %s [-b] [-l log_file] [--record|--replay --rrlog rrlog_file] [img_file]", argv[0]);
     }
   }
 }
@@ -149,6 +178,9 @@ int init_monitor(int argc, char *argv[]) {
 
   /* Open the log file. */
   init_log();
+
+  /* Open the log file for record/replay. */
+  init_rrlog();
 
   /* Test the implementation of the `CPU_state' structure. */
   reg_test();
