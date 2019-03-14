@@ -43,20 +43,23 @@ void* add_pio_map(ioaddr_t addr, int len, pio_callback_t callback) {
 uint32_t pio_read(ioaddr_t addr, int len) {
   assert(addr + len - 1 < PORT_IO_SPACE_MAX);
   pio_callback(addr, len, false);		// prepare data to read
+
+  uint32_t data = 0;
   switch (len) {
-    case 4: return *(uint32_t *)(pio_space + addr);
-    case 2: return *(uint16_t *)(pio_space + addr);
-    case 1: return *(uint8_t *)(pio_space + addr);
+    case 4: memcpy(&data, pio_space + addr, 4); break;
+    case 2: memcpy(&data, pio_space + addr, 2); break;
+    case 1: memcpy(&data, pio_space + addr, 1); break;
     default: assert(0);
   }
+  return data;
 }
 
 void pio_write(ioaddr_t addr, uint32_t data, int len) {
   assert(addr + len - 1 < PORT_IO_SPACE_MAX);
   switch (len) {
-    case 4: *(uint32_t *)(pio_space + addr) = data; break;
-    case 2: *(uint16_t *)(pio_space + addr) = data; break;
-    case 1: *(uint8_t *)(pio_space + addr) = data; break;
+    case 4: memcpy(pio_space + addr, &data, 4); break;
+    case 2: memcpy(pio_space + addr, &data, 2); break;
+    case 1: memcpy(pio_space + addr, &data, 1); break;
     default: assert(0);
   }
   pio_callback(addr, len, true);
