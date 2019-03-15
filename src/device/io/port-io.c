@@ -1,5 +1,6 @@
 #include "common.h"
 #include "device/port-io.h"
+#include "monitor/monitor.h"
 
 #define PORT_IO_SPACE_MAX 65536
 #define NR_MAP 8
@@ -15,6 +16,12 @@ typedef struct {
 
 static PIO_t maps[NR_MAP];
 static int nr_map = 0;
+
+typedef struct {
+	ioaddr_t addr;
+	int len;
+	uint32_t data;
+} PIO_rec;
 
 static void pio_callback(ioaddr_t addr, int len, bool is_write) {
   int i;
@@ -41,17 +48,33 @@ void* add_pio_map(ioaddr_t addr, int len, pio_callback_t callback) {
 
 /* CPU interface */
 uint32_t pio_read(ioaddr_t addr, int len) {
-  assert(addr + len - 1 < PORT_IO_SPACE_MAX);
-  pio_callback(addr, len, false);		// prepare data to read
+	assert(addr + len - 1 < PORT_IO_SPACE_MAX);
 
-  uint32_t data = 0;
-  switch (len) {
-    case 4: memcpy(&data, pio_space + addr, 4); break;
-    case 2: memcpy(&data, pio_space + addr, 2); break;
-    case 1: memcpy(&data, pio_space + addr, 1); break;
-    default: assert(0);
-  }
-  return data;
+	if (rr_mode == RR_REPLAY) {
+		PIO_rec rec;
+		Assert(fread(&rec, sizeof(rec), 1, rrlog_fp) == 1, 
+				"fail to read rrlog");
+		Assert(rec.addr == addr && rec.len == len, "replay error");
+		return rec.data;
+	}
+	else {
+		uint32_t data = 0;
+
+		pio_callback(addr, len, false);		// prepare data to read
+		switch (len) {
+			case 4: memcpy(&data, pio_space + addr, 4); break;
+			case 2: memcpy(&data, pio_space + addr, 2); break;
+			case 1: memcpy(&data, pio_space + addr, 1); break;
+			default: assert(0);
+		}
+
+		if (rr_mode == RR_RECORD) {
+			PIO_rec rec = { addr, len, data };
+			Assert(fwrite(&rec, sizeof(rec), 1, rrlog_fp) == 1, 
+					"fail to log port read");
+		}
+		return data;
+	}
 }
 
 void pio_write(ioaddr_t addr, uint32_t data, int len) {

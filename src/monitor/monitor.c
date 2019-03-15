@@ -67,6 +67,11 @@ static inline void welcome() {
   Log("Differential testing: \33[1;32m%s\33[0m", "OFF");
 #endif
 
+  Log("Record/Replay mode: \33[1;32m%s\33[0m", 
+		  (rr_mode == RR_NONE ? "None" :
+		    (rr_mode == RR_RECORD ? "Record" : "Replay")
+		  ));
+
   printf("For help, type \"help\"\n");
 }
 
