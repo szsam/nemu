@@ -1,3 +1,4 @@
+#if 0
 #include "cpu/tb.h"
 
 /* optimize cmp+jcc
@@ -162,3 +163,4 @@ void optimize_jcc(TranslationBlock *tb) {
 	optimize_je(tb);
 }
 
+#endif

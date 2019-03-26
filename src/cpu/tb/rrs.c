@@ -1,3 +1,4 @@
+#if 0
 #include "cpu/tb.h"
 
 /*
@@ -153,3 +154,4 @@ void remove_redundant_sr(TranslationBlock *tb) {
 		}
 	}
 }
+#endif

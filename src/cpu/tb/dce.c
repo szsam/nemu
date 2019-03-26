@@ -1,3 +1,4 @@
+#if 0
 #include "cpu/tb.h"
 
 // x <- y
@@ -175,3 +176,4 @@ void dead_code_elimination(TranslationBlock *tb) {
 		}
 	}
 }
+#endif

@@ -81,9 +81,9 @@ void cpu_exec(uint64_t n) {
 		cur_tblock->eip_start = cpu.eip;
 		cur_tblock->guest_instr_cnt = 0;
 		cur_tblock->rtl_instr_cnt = 0;
-		cur_tblock->has_saved_label = 0;
+		cur_tblock->has_init_interp = 0;
 		cur_tblock->exec_time = 0;
-		INIT_LIST_HEAD(&cur_tblock->rtl_instr_list.list);
+		INIT_LIST_HEAD(&cur_tblock->rtl_insns);
 		HASH_ADD_INT(tblocks, eip_start, cur_tblock);
 
 		// translate up to (and include) next control transfer instr
@@ -101,7 +101,7 @@ void cpu_exec(uint64_t n) {
 		Log_write("New translation block. [0x%x, 0x%x) #guest = %d, #rtl = %d\n",
 				cur_tblock->eip_start, cur_tblock->eip_end, 
 				cur_tblock->guest_instr_cnt, cur_tblock->rtl_instr_cnt);
-		print_tblock(cur_tblock);
+		// print_tblock(cur_tblock);
 	}
 
 	// execute a basic block

@@ -27,18 +27,9 @@ int rtlreg_a2n(const rtlreg_t *r) {
 }
 
 void optimize_tblock(TranslationBlock *tb) {
-	constant_propogation(tb);
-	dead_code_elimination(tb);
-	remove_redundant_sr(tb);
-//	optimize_jcc(tb);
-
-	tb->rtl_instr_arr = (RTLInstr *)calloc(tb->rtl_instr_cnt + 1, sizeof(RTLInstr));
-	RTLInstrListItem *rtl_list_item;
-	int i = 0;
-	list_for_each_entry(rtl_list_item, &tb->rtl_instr_list.list, list) {
-		tb->rtl_instr_arr[i++] = rtl_list_item->rtl_instr;
-	}
-	assert(i == tb->rtl_instr_cnt);
-	tb->rtl_instr_arr[i].opcode = EOB;
+	// constant_propogation(tb);
+	// dead_code_elimination(tb);
+	// remove_redundant_sr(tb);
+	// optimize_jcc(tb);
 }
 

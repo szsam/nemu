@@ -1,3 +1,4 @@
+#if 0
 #include "cpu/tb.h"
 
 const char * const rtlreg_str[] = {
@@ -107,3 +108,4 @@ void print_tblock(const TranslationBlock *tb) {
 		}
 	}
 }
+#endif

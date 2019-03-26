@@ -1,3 +1,4 @@
+#if 0
 #include "cpu/tb.h"
 
 struct {
@@ -64,3 +65,4 @@ void constant_propogation(TranslationBlock *tb) {
 
 	}
 }
+#endif 
