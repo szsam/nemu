@@ -101,7 +101,7 @@ void cpu_exec(uint64_t n) {
 		Log_write("New translation block. [0x%x, 0x%x) #guest = %d, #rtl = %d\n",
 				cur_tblock->eip_start, cur_tblock->eip_end, 
 				cur_tblock->guest_instr_cnt, cur_tblock->rtl_instr_cnt);
-		// print_tblock(cur_tblock);
+		print_tblock(cur_tblock);
 	}
 
 	// execute a basic block
