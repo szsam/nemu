@@ -31,11 +31,9 @@ void interpret_tblock(TranslationBlock *tb) {
 		&&lbl_set_CF, &&lbl_set_OF, &&lbl_set_ZF, &&lbl_set_SF,
 		&&lbl_get_CF, &&lbl_get_OF, &&lbl_get_ZF, &&lbl_get_SF,
 
-		&&lbl_cc_set_op,
-
 		&&lbl_pio_read, &&lbl_pio_write,
 
-		&&lbl_eob
+		&&lbl_eob, &&lbl_discard
 	};
 
 	if (!tb->has_init_interp) {
@@ -127,7 +125,6 @@ void interpret_tblock(TranslationBlock *tb) {
 	make_interpret_rtl(pio_read,  PTR(A0), PTR(A1), A2)
 	make_interpret_rtl(pio_write, PTR(A0), PTR(A1), A2)
 
-	make_interpret_rtl(cc_set_op, A0, PTR(A1), PTR(A2), PTR(A3))
-
+	lbl_discard: ++rtl; goto *rtl->op_handler;
 	lbl_eob: return;
 }

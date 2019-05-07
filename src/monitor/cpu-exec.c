@@ -4,6 +4,7 @@
 #include "monitor/monitor.h"
 #include "monitor/watchpoint.h"
 #include "cpu/tb.h"
+#include "cpu/decode.h"
 #include "device/device.h"
 
 /* The assembly code of instructions executed is only output to the screen
@@ -15,7 +16,7 @@
 
 volatile sig_atomic_t nemu_state = NEMU_STOP;
 
-bool exec_wrapper(bool);
+bool exec_wrapper(bool, bool);
 
 static uint64_t g_nr_guest_instr = 0;
 
@@ -64,6 +65,8 @@ void cpu_exec(uint64_t n) {
   nemu_state = NEMU_RUNNING;
 
   bool print_flag = n < MAX_INSTR_TO_PRINT;
+  bool prev_insn_is_cmp = false;
+  bool is_control;
 
   for (; n > 0; n --) {
 #if defined(DIFF_TEST)
@@ -89,7 +92,9 @@ void cpu_exec(uint64_t n) {
 		// translate up to (and include) next control transfer instr
 		do {
 			++cur_tblock->guest_instr_cnt;
-		}while(!exec_wrapper(print_flag));
+			is_control = exec_wrapper(print_flag, prev_insn_is_cmp);
+			prev_insn_is_cmp = decoding.is_cmp;
+		}while(!is_control);
 		// ++cur_tblock->guest_instr_cnt;
 		// exec_wrapper(print_flag);
 

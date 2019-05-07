@@ -233,7 +233,7 @@ static inline void update_eip(void) {
 }
 
 /* translate one instruction, return true if it is a control transfer instr */
-bool exec_wrapper(bool print_flag) {
+bool exec_wrapper(bool print_flag, bool prev_insn_is_cmp) {
 #if defined(DEBUG)
   vaddr_t ori_eip = cpu.eip;
 #endif
@@ -245,6 +245,8 @@ bool exec_wrapper(bool print_flag) {
 
   decoding.seq_eip = cpu.eip;
   decoding.is_control = false;
+  decoding.is_cmp = false;
+  decoding.prev_insn_is_cmp = prev_insn_is_cmp;
   id_src->val = &id_src->data;
   id_src2->val = &id_src2->data;
   id_dest->val = &id_dest->data;

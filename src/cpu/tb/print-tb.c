@@ -24,6 +24,10 @@ const char *a2s(RTLArg arg) {
     else if (arg == (RTLArg)&id_dest->addr) return "id_dest->addr";
     else if (arg == (RTLArg)&id_src->addr)  return "id_src->addr";
     else if (arg == (RTLArg)&id_src2->addr) return "id_src2->addr";
+    else if (arg == (RTLArg)&cpu.cc_op)     return "cc_op";
+    else if (arg == (RTLArg)&cpu.cc_res)    return "cc_res";
+    else if (arg == (RTLArg)&cpu.cc_dest)   return "cc_dest";
+    else if (arg == (RTLArg)&cpu.cc_src)    return "cc_src";
 	else assert(0);
 }
 
@@ -107,7 +111,7 @@ void print_tblock(const TranslationBlock *tb) {
 			make_print_rtl_case(pio_read, "%s, (%s), %" PRIdPTR, a2s(A0), a2s(A1), A2)
 			make_print_rtl_case(pio_write, "(%s), %s, %" PRIdPTR, a2s(A0), a2s(A1), A2)
 
-			make_print_rtl_case(cc_set_op, "0x%" PRIxPTR ", %s, %s, %s", A0, a2s(A1), a2s(A2), a2s(A3));
+			make_print_rtl_case(discard, "%s", a2s(A0));
 
 			default:
 				assert(0);

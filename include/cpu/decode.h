@@ -28,9 +28,11 @@ typedef struct {
   vaddr_t seq_eip;  // sequential eip
   bool is_operand_size_16;
   uint8_t ext_opcode;
-  bool is_jmp;
+  // bool is_jmp;
   vaddr_t jmp_eip;
   bool is_control;
+  bool is_cmp;
+  bool prev_insn_is_cmp;
   Operand src, dest, src2;
 #ifdef DEBUG
   char assembly[80];

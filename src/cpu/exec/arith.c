@@ -2,11 +2,12 @@
 
 make_EHelper(add) {
   // save old destination operand
-  rtl_mv(&t3, id_dest->val);
+  rtl_mv(&cpu.cc_dest, id_dest->val);
   rtl_add(id_dest->val, id_dest->val, id_src->val);
   operand_write(id_dest, id_dest->val);
-  rtl_cc_set_op(MAKE_CC_OP(CC_OP_ADD, id_dest->width), 
-		  id_dest->val, &t3, id_src->val);
+  rtl_li(&cpu.cc_op, MAKE_CC_OP(CC_OP_ADD, id_dest->width));
+  rtl_mv(&cpu.cc_res, id_dest->val);
+  rtl_mv(&cpu.cc_src, id_src->val);
   
 //  rtl_update_ZFSF(id_dest->val, id_dest->width);
 //  
@@ -27,11 +28,12 @@ make_EHelper(add) {
 
 make_EHelper(sub) {
   // save old destination operand
-  rtl_mv(&t3, id_dest->val);
+  rtl_mv(&cpu.cc_dest, id_dest->val);
   rtl_sub(id_dest->val, id_dest->val, id_src->val);
   operand_write(id_dest, id_dest->val);
-  rtl_cc_set_op(MAKE_CC_OP(CC_OP_SUB, id_dest->width),
-		  id_dest->val, &t3, id_src->val);
+  rtl_li(&cpu.cc_op, MAKE_CC_OP(CC_OP_SUB, id_dest->width));
+  rtl_mv(&cpu.cc_res, id_dest->val);
+  rtl_mv(&cpu.cc_src, id_src->val);
 
 //  rtl_update_ZFSF(id_dest->val, id_dest->width);
 //
@@ -51,9 +53,12 @@ make_EHelper(sub) {
 }
 
 make_EHelper(cmp) {
-  rtl_sub(&t0, id_dest->val, id_src->val);
-  rtl_cc_set_op(MAKE_CC_OP(CC_OP_SUB, id_dest->width), 
-		  &t0, id_dest->val, id_src->val);
+  rtl_sub(&cpu.cc_res, id_dest->val, id_src->val);
+  rtl_li(&cpu.cc_op, MAKE_CC_OP(CC_OP_SUB, id_dest->width));
+  rtl_mv(&cpu.cc_dest, id_dest->val);
+  rtl_mv(&cpu.cc_src, id_src->val);
+
+  decoding.is_cmp = true;
 
 //  rtl_update_ZFSF(&t0, id_dest->width);
 //
@@ -75,8 +80,10 @@ make_EHelper(cmp) {
 make_EHelper(inc) {
   rtl_addi(id_dest->val, id_dest->val, 1);
   operand_write(id_dest, id_dest->val);
-  rtl_cc_set_op(MAKE_CC_OP(CC_OP_INC, id_dest->width), 
-		  id_dest->val, &tzero, &tzero);
+  rtl_li(&cpu.cc_op, MAKE_CC_OP(CC_OP_INC, id_dest->width));
+  rtl_mv(&cpu.cc_res, id_dest->val);
+  rtl_discard(&cpu.cc_dest);
+  rtl_discard(&cpu.cc_src);
 
 //  rtl_update_ZFSF(id_dest->val, id_dest->width);
   // TODO update OF
@@ -87,8 +94,10 @@ make_EHelper(inc) {
 make_EHelper(dec) {
   rtl_subi(id_dest->val, id_dest->val, 1);
   operand_write(id_dest, id_dest->val);
-  rtl_cc_set_op(MAKE_CC_OP(CC_OP_DEC, id_dest->width), 
-		  id_dest->val, &tzero, &tzero);
+  rtl_li(&cpu.cc_op, MAKE_CC_OP(CC_OP_DEC, id_dest->width));
+  rtl_mv(&cpu.cc_res, id_dest->val);
+  rtl_discard(&cpu.cc_dest);
+  rtl_discard(&cpu.cc_src);
 
 //  rtl_update_ZFSF(id_dest->val, id_dest->width);
   // TODO update OF

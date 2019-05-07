@@ -20,4 +20,11 @@ typedef enum {CC_OP_ADD, CC_OP_SUB, CC_OP_ADC, CC_OP_SBB,
 
 #define MAKE_CC_OP(op, w) ((op << 3) | w)
 
+enum {
+  CC_O, CC_NO, CC_B,  CC_NB,
+  CC_E, CC_NE, CC_BE, CC_NBE,
+  CC_S, CC_NS, CC_P,  CC_NP,
+  CC_L, CC_NL, CC_LE, CC_NLE
+};
+
 #endif

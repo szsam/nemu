@@ -30,11 +30,9 @@ typedef enum {
 	RTLOP_set_CF, RTLOP_set_OF, RTLOP_set_ZF, RTLOP_set_SF,
 	RTLOP_get_CF, RTLOP_get_OF, RTLOP_get_ZF, RTLOP_get_SF,
 
-	RTLOP_cc_set_op,
-
 	RTLOP_pio_read, RTLOP_pio_write,
 
-	RTLOP_eob
+	RTLOP_eob, RTLOP_discard
 } RTLOpcode;
 
 typedef uintptr_t RTLArg;
@@ -174,10 +172,10 @@ make_generate_rtl_setget_eflags(OF)
 make_generate_rtl_setget_eflags(ZF)
 make_generate_rtl_setget_eflags(SF)
 
-static inline void generate_rtl_cc_set_op(int op, const rtlreg_t *res, 
-		const rtlreg_t *dest, const rtlreg_t *src) {
-	generate_rtl(RTLOP_cc_set_op, 4, op, res, dest, src);
-}
+// static inline void generate_rtl_cc_set_op(int op, const rtlreg_t *res, 
+// 		const rtlreg_t *dest, const rtlreg_t *src) {
+// 	generate_rtl(RTLOP_cc_set_op, 4, op, res, dest, src);
+// }
 
 static inline void generate_rtl_pio_read(rtlreg_t *dest, const rtlreg_t *addr, int len) {
 	generate_rtl(RTLOP_pio_read, 3, dest, addr, len);
@@ -274,6 +272,10 @@ static inline void rtl_msb(rtlreg_t* dest, const rtlreg_t* src1, int width) {
   int n = width * 8 - 1;
   rtl_shri(dest, src1, n);
   rtl_andi(dest, dest, 0x1);
+}
+
+static inline void rtl_discard(const rtlreg_t *addr) {
+	generate_rtl(RTLOP_discard, 1, addr);
 }
 
 // static inline void rtl_update_ZF(const rtlreg_t* result, int width) {

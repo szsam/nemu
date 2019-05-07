@@ -6,9 +6,9 @@ DecodeInfo decoding;
 rtlreg_t t0, t1, t2, t3, at;
 const rtlreg_t tzero = 0;
 
-void decoding_set_jmp(bool is_jmp) {
-  decoding.is_jmp = is_jmp;
-}
+// void decoding_set_jmp(bool is_jmp) {
+//   decoding.is_jmp = is_jmp;
+// }
 
 #define make_DopHelper(name) void concat(decode_op_, name) (vaddr_t *eip, Operand *op, bool load_val)
 

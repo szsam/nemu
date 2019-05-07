@@ -11,7 +11,7 @@
 // extern rtlreg_t t0, t1, t2, t3, at;
 // extern const rtlreg_t tzero;
 
-void decoding_set_jmp(bool is_jmp);
+// void decoding_set_jmp(bool is_jmp);
 bool interpret_relop(uint32_t relop, const rtlreg_t src1, const rtlreg_t src2);
 
 /* RTL basic instructions */
@@ -150,13 +150,13 @@ void interpret_rtl_pio_write(const rtlreg_t *addr, const rtlreg_t *src, int len)
 	pio_write(*addr, *src, len);
 }
 
-static inline
-void interpret_rtl_cc_set_op(int op, const rtlreg_t *res,
-		const rtlreg_t *dest, const rtlreg_t *src) {
-	cpu.cc_op = op;
-	cpu.cc_res = *res;
-	cpu.cc_dest = *dest;
-	cpu.cc_src = *src;
-}
+// static inline
+// void interpret_rtl_cc_set_op(int op, const rtlreg_t *res,
+// 		const rtlreg_t *dest, const rtlreg_t *src) {
+// 	cpu.cc_op = op;
+// 	cpu.cc_res = *res;
+// 	cpu.cc_dest = *dest;
+// 	cpu.cc_src = *src;
+// }
 
 #endif

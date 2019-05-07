@@ -161,16 +161,8 @@ void dead_code_elimination(TranslationBlock *tb) {
 			case PIO_READ: live[a2n(rtl->r2)] = 1; break;
 			case PIO_WRITE: live[a2n(rtl->r2)] = live[a2n(rtl->r3)] = 1; break;
 
-			case CC_SET_OP:
-				if (live_cc) {
-					live[a2n(rtl->r2)] = live[a2n(rtl->r3)] = live[a2n(rtl->r4)] = 1;
-					live_cc = 0;
-				}
-				else {
-					list_del(&list_item->list);
-					free(list_item);
-					--tb->rtl_instr_cnt;
-				}
+
+			case discard: 
 
 			default: break;
 		}
