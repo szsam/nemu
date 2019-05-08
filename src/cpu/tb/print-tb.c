@@ -7,28 +7,17 @@
 		Log_write("rtl_" #name "(" fmtstr ")\n", __VA_ARGS__); \
 		break;
 
-// rtl register: arg to string
+const char *rtlreg_name[] = {
+	"eax", "ecx", "edx", "ebx", "esp", "ebp", "esi", "edi",
+	"cc_op", "cc_res", "cc_dest", "cc_src",
+	"t0", "t1", "t2", "t3", "at", "tzero",
+	"mdr0", "mdr1", "mdr2", "mar0", "mar1", "mar2"
+};
+
+// arg to rtlreg's name
 const char *a2s(RTLArg arg) {
-	if (arg >= (RTLArg)cpu.gpr && arg < (RTLArg)(cpu.gpr + 8)) {
-		return reg_name((rtlreg_t *)arg - &reg_l(0), 4);
-	}
-    else if (arg == (RTLArg)&tzero)         return "tzero";
-    else if (arg == (RTLArg)&t0)            return "t0";
-    else if (arg == (RTLArg)&t1)            return "t1";
-    else if (arg == (RTLArg)&t2)            return "t2";
-    else if (arg == (RTLArg)&t3)            return "t3";
-    else if (arg == (RTLArg)&at)            return "at";
-    else if (arg == (RTLArg)&id_dest->data) return "id_dest->data";
-    else if (arg == (RTLArg)&id_src->data)  return "id_src->data";
-    else if (arg == (RTLArg)&id_src2->data) return "id_src2->data";
-    else if (arg == (RTLArg)&id_dest->addr) return "id_dest->addr";
-    else if (arg == (RTLArg)&id_src->addr)  return "id_src->addr";
-    else if (arg == (RTLArg)&id_src2->addr) return "id_src2->addr";
-    else if (arg == (RTLArg)&cpu.cc_op)     return "cc_op";
-    else if (arg == (RTLArg)&cpu.cc_res)    return "cc_res";
-    else if (arg == (RTLArg)&cpu.cc_dest)   return "cc_dest";
-    else if (arg == (RTLArg)&cpu.cc_src)    return "cc_src";
-	else assert(0);
+	int index = (rtlreg_t *)arg - cpu.rtlregs;
+	return rtlreg_name[index];
 }
 
 #define A0 insn->args[0]
@@ -43,8 +32,8 @@ void print_tblock(const TranslationBlock *tb) {
 			make_print_rtl_case(j, "0x%" PRIxPTR, A0)
 			make_print_rtl_case(jr, "%s", a2s(A0))
 
-			make_print_rtl_case(jrelop, "%" PRIdPTR ", %s, %s, 0x%" PRIxPTR, A0, a2s(A1), a2s(A2), A3)
-			make_print_rtl_case(setrelop, "%" PRIdPTR ", %s, %s, %s", A0, a2s(A1), a2s(A2), a2s(A3))
+			make_print_rtl_case(jrelop,  "%s, %s, %" PRIdPTR ", 0x%" PRIxPTR, a2s(A0), a2s(A1), A2, A3)
+			make_print_rtl_case(setrelop, "%s, %s, %s, %" PRIdPTR, a2s(A0), a2s(A1), a2s(A2), A3)
 
 			make_print_rtl_case(exit, "%" PRIdPTR, A0)
 			make_print_rtl_case(li, "%s, 0x%" PRIxPTR, a2s(A0), A1)

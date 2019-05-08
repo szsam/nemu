@@ -3,8 +3,8 @@
 
 /* shared by all helper functions */
 DecodeInfo decoding;
-rtlreg_t t0, t1, t2, t3, at;
-const rtlreg_t tzero = 0;
+// rtlreg_t t0, t1, t2, t3, at;
+// const rtlreg_t tzero = 0;
 
 // void decoding_set_jmp(bool is_jmp) {
 //   decoding.is_jmp = is_jmp;
@@ -107,13 +107,14 @@ static inline void decode_op_rm(vaddr_t *eip, Operand *rm, bool load_rm_val, Ope
 /* Ob, Ov */
 static inline make_DopHelper(O) {
   op->type = OP_TYPE_MEM;
-  rtl_li(&op->addr, instr_fetch(eip, 4));
+  uint32_t offset = instr_fetch(eip, 4);
+  rtl_li(op->addr, offset);
   if (load_val) {
-    rtl_lm(op->val, &op->addr, op->width);
+    rtl_lm(op->val, op->addr, op->width);
   }
 
 #ifdef DEBUG
-  snprintf(op->str, OP_STR_SIZE, "0x%x", op->addr);
+  snprintf(op->str, OP_STR_SIZE, "0x%x", offset);
 #endif
 }
 
@@ -327,6 +328,6 @@ make_DHelper(out_a2dx) {
 
 void operand_write(Operand *op, rtlreg_t* src) {
   if (op->type == OP_TYPE_REG) { rtl_sr(op->reg, op->width, src); }
-  else if (op->type == OP_TYPE_MEM) { rtl_sm(&op->addr, op->width, src); }
+  else if (op->type == OP_TYPE_MEM) { rtl_sm(op->addr, op->width, src); }
   else { assert(0); }
 }

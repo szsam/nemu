@@ -57,8 +57,8 @@ void interpret_tblock(TranslationBlock *tb) {
 	make_interpret_rtl(j, A0)
 	make_interpret_rtl(jr, PTR(A0))
 
-	make_interpret_rtl(jrelop, A0, PTR(A1), PTR(A2), A3)
-	make_interpret_rtl(setrelop, A0, PTR(A1), PTR(A2), PTR(A3))
+	make_interpret_rtl(jrelop, PTR(A0), PTR(A1), A2, A3)
+	make_interpret_rtl(setrelop, PTR(A0), PTR(A1), PTR(A2), A3)
 
 	make_interpret_rtl(exit, A0)
 	make_interpret_rtl(li, PTR(A0), A1)

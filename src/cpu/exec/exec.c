@@ -247,9 +247,12 @@ bool exec_wrapper(bool print_flag, bool prev_insn_is_cmp) {
   decoding.is_control = false;
   decoding.is_cmp = false;
   decoding.prev_insn_is_cmp = prev_insn_is_cmp;
-  id_src->val = &id_src->data;
-  id_src2->val = &id_src2->data;
-  id_dest->val = &id_dest->data;
+  id_dest->val = &cpu.mdr0;
+  id_src->val = &cpu.mdr1;
+  id_src2->val = &cpu.mdr2;
+  id_dest->addr = &cpu.mar0;
+  id_src->addr = &cpu.mar1;
+  id_src2->addr = &cpu.mar2;
   exec_real(&decoding.seq_eip);
 
 #ifdef DEBUG

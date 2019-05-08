@@ -27,12 +27,12 @@ make_EHelper(jcc) {
 	}
 	if (invert) relop |= 0x1;
 	// TODO: fix cmp(w|b)+jl/jle/jge/jg, must first sign extension cc_dest and cc_src
-	rtl_jrelop(relop, &cpu.cc_dest, &cpu.cc_src, decoding.jmp_eip);
+	rtl_jrelop(&cpu.cc_dest, &cpu.cc_src, relop, decoding.jmp_eip);
   }
   else {
 slow_jcc:
     rtl_setcc(&t0, cc);
-    rtl_jrelop(RELOP_NE, &t0, &tzero, decoding.jmp_eip);
+    rtl_jrelop(&t0, &tzero, RELOP_NE, decoding.jmp_eip);
   }
 
   decoding.is_control = true;

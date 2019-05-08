@@ -9,9 +9,14 @@
 // #include "cpu/rtl-generate.h"
 #include "util/list.h"
 
-extern rtlreg_t t0, t1, t2, t3, at;
-extern const rtlreg_t tzero;
-// extern rtlreg_t cc_op, cc_res, cc_dest, cc_src;
+// extern rtlreg_t t0, t1, t2, t3, at;
+// extern const rtlreg_t tzero;
+#define t0 cpu.t0
+#define t1 cpu.t1
+#define t2 cpu.t2
+#define t3 cpu.t3
+#define at cpu.at
+#define tzero cpu.tzero
 
 typedef enum {
 	RTLOP_j, RTLOP_jr, RTLOP_jrelop, RTLOP_setrelop, RTLOP_exit, RTLOP_li, RTLOP_lm, RTLOP_sm, 
@@ -62,14 +67,14 @@ static inline void generate_rtl_jr(rtlreg_t *target) {
 	generate_rtl(RTLOP_jr, 1, target);
 }
 
-static inline void generate_rtl_jrelop(uint32_t relop,
-    const rtlreg_t *src1, const rtlreg_t *src2, vaddr_t target) {
-	generate_rtl(RTLOP_jrelop, 4, relop, src1, src2, target);
+static inline void generate_rtl_jrelop(const rtlreg_t *src1, 
+		const rtlreg_t *src2, uint32_t relop, vaddr_t target) {
+	generate_rtl(RTLOP_jrelop, 4, src1, src2, relop, target);
 }
 
-static inline void generate_rtl_setrelop(uint32_t relop, rtlreg_t *dest,
-    const rtlreg_t *src1, const rtlreg_t *src2) {
-	generate_rtl(RTLOP_setrelop, 4, relop, dest, src1, src2);
+static inline void generate_rtl_setrelop(rtlreg_t *dest,
+    const rtlreg_t *src1, const rtlreg_t *src2, uint32_t relop) {
+	generate_rtl(RTLOP_setrelop, 4, dest, src1, src2, relop);
 }
 
 static inline void generate_rtl_exit(int state) {
@@ -253,7 +258,7 @@ static inline void rtl_pop(rtlreg_t* dest) {
 
 static inline void rtl_eq0(rtlreg_t* dest, const rtlreg_t* src1) {
   // dest <- (src1 == 0 ? 1 : 0)
-  rtl_setrelop(RELOP_EQ, dest, src1, &tzero);
+  rtl_setrelop(dest, src1, &tzero, RELOP_EQ);
 }
 
 static inline void rtl_eqi(rtlreg_t* dest, const rtlreg_t* src1, int imm) {

@@ -14,12 +14,12 @@ typedef struct {
   int width;
   union {
     uint32_t reg;
-    rtlreg_t addr;
+    rtlreg_t *addr;
     uint32_t imm;
     int32_t simm;
   };
   rtlreg_t *val;
-  rtlreg_t data;
+  // rtlreg_t data;
   char str[OP_STR_SIZE];
 } Operand;
 

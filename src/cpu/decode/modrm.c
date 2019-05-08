@@ -38,23 +38,23 @@ void load_addr(vaddr_t *eip, ModR_M *m, Operand *rm) {
   }
 
   if (base_reg != -1 && index_reg != -1) {
-    rtl_add(&rm->addr, &reg_l(base_reg), &t1);
+    rtl_add(rm->addr, &reg_l(base_reg), &t1);
 	if (disp_size != 0)
-      rtl_addi(&rm->addr, &rm->addr, disp);
+      rtl_addi(rm->addr, rm->addr, disp);
   }
   else if (base_reg != -1) {
 	if (disp_size != 0)
-      rtl_addi(&rm->addr, &reg_l(base_reg), disp);
+      rtl_addi(rm->addr, &reg_l(base_reg), disp);
 	else
-	  rtl_mv(&rm->addr, &reg_l(base_reg));
+	  rtl_mv(rm->addr, &reg_l(base_reg));
   }
   else if (index_reg != -1) {
     // must have disp
-    rtl_addi(&rm->addr, &t1, disp);
+    rtl_addi(rm->addr, &t1, disp);
   }
   else {
     // must have disp
-    rtl_li(&rm->addr, disp);
+    rtl_li(rm->addr, disp);
   }
 
 #ifdef DEBUG
@@ -119,7 +119,7 @@ void read_ModR_M(vaddr_t *eip, Operand *rm, bool load_rm_val, Operand *reg, bool
   else {
     load_addr(eip, &m, rm);
     if (load_rm_val) {
-      rtl_lm(rm->val, &rm->addr, rm->width);
+      rtl_lm(rm->val, rm->addr, rm->width);
     }
   }
 }

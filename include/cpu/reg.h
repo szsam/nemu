@@ -22,6 +22,8 @@ typedef struct {
             uint32_t _32;
         } gpr[8];
 
+		rtlreg_t rtlregs[24];
+
         struct {
 			/* Do NOT change the order of the GPRs' definitions. */
 
@@ -29,10 +31,13 @@ typedef struct {
   			 * in PA2 able to directly access these registers.
   			 */
   			rtlreg_t eax, ecx, edx, ebx, esp, ebp, esi, edi;
+
+			/* Internal RTL registers */
+			rtlreg_t cc_op, cc_res, cc_dest, cc_src;
+			rtlreg_t t0, t1, t2, t3, at, tzero;
+			rtlreg_t mdr0, mdr1, mdr2, mar0, mar1, mar2;
         };
     };
-
-	rtlreg_t cc_op, cc_res, cc_dest, cc_src;
 
     union {
         struct {
