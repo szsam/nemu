@@ -17,6 +17,11 @@ typedef struct {
 	bool has_init_interp; 
 	RTLInterp *rtl_interp;
 
+#ifdef DIFF_TEST
+	bool diff_test_skip_qemu;
+	bool diff_test_skip_nemu;
+#endif
+
 	UT_hash_handle hh;
 }TranslationBlock;
 

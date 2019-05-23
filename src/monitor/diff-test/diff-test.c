@@ -1,5 +1,9 @@
+#include "common.h"
+#ifdef DIFF_TEST
+
 #include "nemu.h"
 #include "monitor/monitor.h"
+#include "cpu/tb.h"
 #include <unistd.h>
 #include <sys/prctl.h>
 #include <signal.h>
@@ -14,11 +18,11 @@ bool gdb_setregs(union gdb_regs *);
 bool gdb_si(void);
 void gdb_exit(void);
 
-static bool is_skip_qemu;
-static bool is_skip_nemu;
+// static bool is_skip_qemu;
+// static bool is_skip_nemu;
 
-void diff_test_skip_qemu() { is_skip_qemu = true; }
-void diff_test_skip_nemu() { is_skip_nemu = true; }
+void diff_test_skip_qemu() { cur_tblock->diff_test_skip_qemu = true; }
+void diff_test_skip_nemu() { cur_tblock->diff_test_skip_nemu = true; }
 
 #define regcpy_from_nemu(regs) \
   do { \
@@ -130,17 +134,17 @@ void difftest_step(uint32_t eip, int nr_instr) {
   union gdb_regs r;
   bool diff = false;
 
-  if (is_skip_nemu) {
-    is_skip_nemu = false;
+  if (cur_tblock->diff_test_skip_nemu) {
+    // is_skip_nemu = false;
     return;
   }
 
-  if (is_skip_qemu) {
+  if (cur_tblock->diff_test_skip_qemu) {
     // to skip the checking of an instruction, just copy the reg state to qemu
     gdb_getregs(&r);
     regcpy_from_nemu(r);
     gdb_setregs(&r);
-    is_skip_qemu = false;
+    // is_skip_qemu = false;
     return;
   }
 
@@ -164,3 +168,5 @@ void difftest_step(uint32_t eip, int nr_instr) {
 	else Log("eip: nemu:0x%x, qemu:0x%x at eip=0x%x", cpu.eip, r.eip, eip); 
   }
 }
+
+#endif

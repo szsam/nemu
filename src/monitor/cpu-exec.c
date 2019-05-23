@@ -65,8 +65,6 @@ void cpu_exec(uint64_t n) {
   nemu_state = NEMU_RUNNING;
 
   bool print_flag = n < MAX_INSTR_TO_PRINT;
-  bool prev_insn_is_cmp = false;
-  bool is_control;
 
   for (; n > 0; n --) {
 #if defined(DIFF_TEST)
@@ -89,14 +87,22 @@ void cpu_exec(uint64_t n) {
 		INIT_LIST_HEAD(&cur_tblock->rtl_insns);
 		HASH_ADD_INT(tblocks, eip_start, cur_tblock);
 
+#ifdef DIFF_TEST
+		cur_tblock->diff_test_skip_qemu = false;
+		cur_tblock->diff_test_skip_nemu = false;
+		++cur_tblock->guest_instr_cnt;
+		// translate a single instruction
+		exec_wrapper(print_flag, false);
+#else
+		bool prev_insn_is_cmp = false;
+		bool is_control;
 		// translate up to (and include) next control transfer instr
 		do {
 			++cur_tblock->guest_instr_cnt;
 			is_control = exec_wrapper(print_flag, prev_insn_is_cmp);
 			prev_insn_is_cmp = decoding.is_cmp;
 		}while(!is_control);
-		// ++cur_tblock->guest_instr_cnt;
-		// exec_wrapper(print_flag);
+#endif
 
 		cur_tblock->eip_end = cpu.eip;
 
