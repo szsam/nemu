@@ -20,6 +20,7 @@
 
 typedef enum {
 	RTLOP_j, RTLOP_jr, RTLOP_jrelop, RTLOP_setrelop, RTLOP_exit, RTLOP_li, RTLOP_lm, RTLOP_sm, 
+	RTLOP_host_lm, RTLOP_host_sm,
 	RTLOP_lr_l, RTLOP_lr_w, RTLOP_lr_b, RTLOP_sr_l, RTLOP_sr_w, RTLOP_sr_b,
 
 	RTLOP_add, RTLOP_sub, RTLOP_and, RTLOP_or, RTLOP_xor, RTLOP_shl, RTLOP_shr, RTLOP_sar, 
@@ -138,6 +139,14 @@ static inline void generate_rtl_lm(rtlreg_t *dest, const rtlreg_t* addr, int len
 
 static inline void generate_rtl_sm(const rtlreg_t* addr, int len, const rtlreg_t* src1) {
 	generate_rtl(RTLOP_sm, 3, addr, len, src1);
+}
+
+static inline void generate_rtl_host_lm(rtlreg_t *dest, const void* addr, int len) {
+	generate_rtl(RTLOP_host_lm, 3, dest, addr, len);
+}
+
+static inline void generate_rtl_host_sm(const rtlreg_t* src, void * addr, int len) {
+	generate_rtl(RTLOP_host_sm, 3, src, addr, len);
 }
 
 static inline void generate_rtl_lr_l(rtlreg_t* dest, int r) {

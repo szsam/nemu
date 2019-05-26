@@ -7,7 +7,12 @@ make_EHelper(mov) {
 
 make_EHelper(push) {
   assert(!decoding.is_operand_size_16);
-  rtl_push(id_dest->val);
+  if (id_dest->val != &cpu.esp)
+	  rtl_push(id_dest->val);
+  else {
+	  rtl_mv(&t0, &cpu.esp);
+	  rtl_push(&t0);
+  }
 
   print_asm_template1(push);
 }
@@ -20,13 +25,24 @@ make_EHelper(pop) {
 }
 
 make_EHelper(pusha) {
-  TODO();
+  rtl_mv(&t0, &cpu.esp);
+  for (int i = R_EAX; i <= R_EDI; i++) {
+	  if (i != R_ESP)
+		  rtl_push(&reg_l(i));
+	  else
+		  rtl_push(&t0);
+  }
 
   print_asm("pusha");
 }
 
 make_EHelper(popa) {
-  TODO();
+  for (int i = R_EDI; i >= R_EAX; i--) {
+	  if (i != R_ESP)
+		  rtl_pop(&reg_l(i));
+	  else
+		  rtl_addi(&cpu.esp, &cpu.esp, 4);
+  }
 
   print_asm("popa");
 }

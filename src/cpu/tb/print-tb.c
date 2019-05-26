@@ -40,6 +40,9 @@ void print_tblock(const TranslationBlock *tb) {
 			make_print_rtl_case(lm, "%s, (%s), %" PRIdPTR, a2s(A0), a2s(A1), A2)
 			make_print_rtl_case(sm, "(%s), %" PRIdPTR ", %s", a2s(A0), A1, a2s(A2))
 
+			make_print_rtl_case(host_lm, "%s, 0x%" PRIxPTR ", %" PRIdPTR, a2s(A0), A1, A2)
+			make_print_rtl_case(host_sm, "%s, 0x%" PRIxPTR ", %" PRIdPTR, a2s(A0), A1, A2)
+
 			make_print_rtl_case(lr_l, "%s, %s", a2s(A0), reg_name(A1, 4))
 			make_print_rtl_case(lr_w, "%s, %s", a2s(A0), reg_name(A1, 2))
 			make_print_rtl_case(lr_b, "%s, %s", a2s(A0), reg_name(A1, 1))

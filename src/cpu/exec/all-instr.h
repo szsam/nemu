@@ -9,6 +9,8 @@ make_EHelper(movsx);
 make_EHelper(cltd);
 make_EHelper(cwtl);
 make_EHelper(leave);
+make_EHelper(pusha);
+make_EHelper(popa);
 
 make_EHelper(call);
 make_EHelper(call_rm);
@@ -46,6 +48,10 @@ make_EHelper(neg);
 
 make_EHelper(in);
 make_EHelper(out);
+make_EHelper(lidt);
+make_EHelper(int);
+make_EHelper(iret);
+make_EHelper(sti);
 
 make_EHelper(operand_size);
 

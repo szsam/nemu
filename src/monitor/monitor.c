@@ -133,6 +133,8 @@ static inline void restart() {
 
   /* Initialize EFLAGS register */
   cpu.eflags.val = 0x2;
+
+  cpu.cs = 8;
 }
 
 static inline void parse_args(int argc, char *argv[]) {

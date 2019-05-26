@@ -16,6 +16,7 @@
 void interpret_tblock(TranslationBlock *tb) {
 	static const void *dispatch_table[] = {
 		&&lbl_j, &&lbl_jr, &&lbl_jrelop, &&lbl_setrelop, &&lbl_exit, &&lbl_li, &&lbl_lm, &&lbl_sm, 
+		&&lbl_host_lm, &&lbl_host_sm,
 		&&lbl_lr_l, &&lbl_lr_w, &&lbl_lr_b, &&lbl_sr_l, &&lbl_sr_w, &&lbl_sr_b,
 
 		&&lbl_add, &&lbl_sub, &&lbl_and, &&lbl_or, &&lbl_xor, &&lbl_shl, &&lbl_shr, &&lbl_sar, 
@@ -64,6 +65,9 @@ void interpret_tblock(TranslationBlock *tb) {
 	make_interpret_rtl(li, PTR(A0), A1)
 	make_interpret_rtl(lm, PTR(A0), PTR(A1), A2)
 	make_interpret_rtl(sm, PTR(A0), A1, PTR(A2))
+
+	make_interpret_rtl(host_lm, PTR(A0), (const void *)A1, A2)
+	make_interpret_rtl(host_sm, PTR(A0), (void *)A1, A2)
 
 	make_interpret_rtl(lr_l, PTR(A0), A1)
 	make_interpret_rtl(lr_w, PTR(A0), A1)

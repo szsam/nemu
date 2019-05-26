@@ -49,6 +49,8 @@
 #define rtl_idiv64_r  concat3(RTL_PREFIX, _, rtl_idiv64_r)
 #define rtl_lm        concat3(RTL_PREFIX, _, rtl_lm      )
 #define rtl_sm        concat3(RTL_PREFIX, _, rtl_sm      )
+#define rtl_host_lm   concat3(RTL_PREFIX, _, rtl_host_lm )
+#define rtl_host_sm   concat3(RTL_PREFIX, _, rtl_host_sm )
 #define rtl_lr_l      concat3(RTL_PREFIX, _, rtl_lr_l    )
 #define rtl_lr_w      concat3(RTL_PREFIX, _, rtl_lr_w    )
 #define rtl_lr_b      concat3(RTL_PREFIX, _, rtl_lr_b    )

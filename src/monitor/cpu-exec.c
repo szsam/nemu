@@ -14,6 +14,9 @@
  */
 #define MAX_INSTR_TO_PRINT 10
 
+#define IRQ_TIMER 32
+void raise_intr(uint8_t, vaddr_t);
+
 volatile sig_atomic_t nemu_state = NEMU_STOP;
 
 bool exec_wrapper(bool, bool);
@@ -137,6 +140,12 @@ void cpu_exec(uint64_t n) {
 #ifdef HAS_IOE
     device_update();
 #endif
+
+	// if (cpu.INTR & cpu.eflags.IF) {
+	// 	Log("handing interrupt");
+	// 	cpu.INTR = false;
+	// 	raise_intr(IRQ_TIMER, cpu.eip);
+	// }
 
     if (nemu_state != NEMU_RUNNING) {
       if (nemu_state == NEMU_END) {
