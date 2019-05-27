@@ -20,8 +20,11 @@ static char *log_file = NULL;
 static char *img_file = NULL;
 static int is_batch_mode = false;
 int rr_mode = RR_NONE;
-FILE *rrlog_fp = NULL;
-static char *rrlog_file = NULL;
+FILE *rrlog_io_fp = NULL;
+FILE *rrlog_intr_fp = NULL;
+static char *rrlog_io_file = NULL;
+static char *rrlog_intr_file = NULL;
+int next_intr_tb_num;
 
 static inline void init_log() {
 #ifdef DEBUG
@@ -34,15 +37,22 @@ static inline void init_log() {
 static inline void init_rrlog() {
   if (rr_mode == RR_NONE) return;
 
-  if (rrlog_file == NULL)
-	  panic("Must specify a log file for record/replay (use --rrlog)");
+  if (rrlog_io_file == NULL || rrlog_intr_file == NULL)
+	  panic("Must specify log files for record/replay (use --rrlog-io and --rrlog-intr)");
 
-  if (rr_mode == RR_RECORD)
-	  rrlog_fp = fopen(rrlog_file, "wb");
-  else
-	  rrlog_fp = fopen(rrlog_file, "rb");
+  if (rr_mode == RR_RECORD) {
+	  rrlog_io_fp = fopen(rrlog_io_file, "wb");
+	  rrlog_intr_fp = fopen(rrlog_intr_file, "wb");
+  }
+  else {
+	  rrlog_io_fp = fopen(rrlog_io_file, "rb");
+	  rrlog_intr_fp = fopen(rrlog_intr_file, "rb");
+	  Assert(fread(&next_intr_tb_num, sizeof(next_intr_tb_num), 1, rrlog_intr_fp) == 1, 
+			  "fail to read rrlog-intr");
+  }
 
-  Assert(rrlog_fp, "Can not open '%s'", rrlog_file);
+  Assert(rrlog_io_fp, "Can not open '%s'", rrlog_io_file);
+  Assert(rrlog_intr_fp, "Can not open '%s'", rrlog_intr_file);
 }
 
 static inline void welcome() {
@@ -141,7 +151,8 @@ static inline void parse_args(int argc, char *argv[]) {
   static struct option long_options[] = {
     {"record", no_argument, &rr_mode, RR_RECORD },
     {"replay", no_argument, &rr_mode, RR_REPLAY },
-    {"rrlog", required_argument, 0, 0 },
+    {"rrlog-io", required_argument, 0, 0 },
+    {"rrlog-intr", required_argument, 0, 0 },
 	{ 0, 0, 0, 0}
   };
   int o;
@@ -150,7 +161,8 @@ static inline void parse_args(int argc, char *argv[]) {
   while ( (o = getopt_long(argc, argv, "-bl:", long_options, &option_index)) != -1) {
     switch (o) {
       case 0:   
-                if (option_index == 2) rrlog_file = optarg;
+                if (option_index == 2) rrlog_io_file = optarg;
+				else if (option_index == 3) rrlog_intr_file = optarg;
 			   	break;
       case 'b': is_batch_mode = true; break;
       case 'l': log_file = optarg; break;
@@ -159,7 +171,7 @@ static inline void parse_args(int argc, char *argv[]) {
                 else img_file = optarg;
                 break;
       default:
-                panic("Usage: %s [-b] [-l log_file] [--record|--replay --rrlog rrlog_file] [img_file]", argv[0]);
+                panic("Usage: %s [-b] [-l log_file] [--record|--replay --rrlog-io rrlog_io_file --rrlog-intr rrlog_intr_file] [img_file]", argv[0]);
     }
   }
 }

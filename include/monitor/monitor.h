@@ -9,6 +9,8 @@ extern volatile sig_atomic_t nemu_state;
 
 enum { RR_NONE, RR_RECORD, RR_REPLAY };
 extern int rr_mode;
-extern FILE *rrlog_fp;
+extern FILE *rrlog_io_fp;
+extern FILE *rrlog_intr_fp;
+extern int next_intr_tb_num;
 
 #endif

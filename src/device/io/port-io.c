@@ -52,7 +52,7 @@ uint32_t pio_read(ioaddr_t addr, int len) {
 
 	if (rr_mode == RR_REPLAY) {
 		PIO_rec rec;
-		Assert(fread(&rec, sizeof(rec), 1, rrlog_fp) == 1, 
+		Assert(fread(&rec, sizeof(rec), 1, rrlog_io_fp) == 1, 
 				"fail to read rrlog");
 		Assert(rec.addr == addr && rec.len == len, "replay error");
 		return rec.data;
@@ -70,7 +70,7 @@ uint32_t pio_read(ioaddr_t addr, int len) {
 
 		if (rr_mode == RR_RECORD) {
 			PIO_rec rec = { addr, len, data };
-			Assert(fwrite(&rec, sizeof(rec), 1, rrlog_fp) == 1, 
+			Assert(fwrite(&rec, sizeof(rec), 1, rrlog_io_fp) == 1, 
 					"fail to log port read");
 		}
 		return data;

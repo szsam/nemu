@@ -149,10 +149,24 @@ void cpu_exec(uint64_t n) {
     device_update();
 #endif
 
-	if (cpu.INTR & cpu.eflags.IF) {
-		Log("basic block # = %d", tot_tb);
-		cpu.INTR = false;
-		raise_intr(IRQ_TIMER, cpu.eip);
+	if (rr_mode == RR_REPLAY) {
+		if (tot_tb == next_intr_tb_num) {
+			raise_intr(IRQ_TIMER, cpu.eip);
+			Assert(fread(&next_intr_tb_num, sizeof(next_intr_tb_num), 1, rrlog_intr_fp) == 1, 
+					"fail to read rrlog-intr");
+		}
+
+	}
+	else {
+		if (cpu.INTR & cpu.eflags.IF) {
+			cpu.INTR = false;
+			raise_intr(IRQ_TIMER, cpu.eip);
+			
+			if (rr_mode == RR_RECORD) {
+				Assert(fwrite(&tot_tb, sizeof(tot_tb), 1, rrlog_intr_fp) == 1, 
+						"fail to log interrupt");
+			}
+		}
 	}
 
     if (nemu_state != NEMU_RUNNING) {
