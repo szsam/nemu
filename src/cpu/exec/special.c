@@ -32,6 +32,7 @@ make_EHelper(inv) {
       "* Every line of untested code is always wrong!\33[0m\n\n", logo);
 
   rtl_exit(NEMU_ABORT);
+  panic("invalid opcode");
 
   print_asm("invalid opcode");
 }

@@ -7,6 +7,8 @@
 #include "cpu/decode.h"
 #include "device/device.h"
 
+// #define SINGLE_INSN
+
 /* The assembly code of instructions executed is only output to the screen
  * when the number of instructions executed is less than this value.
  * This is useful when you use the `si' command.
@@ -90,9 +92,11 @@ void cpu_exec(uint64_t n) {
 		INIT_LIST_HEAD(&cur_tblock->rtl_insns);
 		HASH_ADD_INT(tblocks, eip_start, cur_tblock);
 
-#ifdef DIFF_TEST
+#ifdef SINGLE_INSN
+ #ifdef DIFF_TEST
 		cur_tblock->diff_test_skip_qemu = false;
 		cur_tblock->diff_test_skip_nemu = false;
+ #endif
 		++cur_tblock->guest_instr_cnt;
 		// translate a single instruction
 		exec_wrapper(print_flag, false);
@@ -116,6 +120,10 @@ void cpu_exec(uint64_t n) {
 				cur_tblock->eip_start, cur_tblock->eip_end, 
 				cur_tblock->guest_instr_cnt, cur_tblock->rtl_instr_cnt);
 		print_tblock(cur_tblock);
+	}
+	else {
+		Log_write("Hit exisiting translation block. [0x%x, 0x%x)\n",
+				cur_tblock->eip_start, cur_tblock->eip_end); 
 	}
 
 	// execute a basic block
@@ -141,11 +149,11 @@ void cpu_exec(uint64_t n) {
     device_update();
 #endif
 
-	// if (cpu.INTR & cpu.eflags.IF) {
-	// 	Log("handing interrupt");
-	// 	cpu.INTR = false;
-	// 	raise_intr(IRQ_TIMER, cpu.eip);
-	// }
+	if (cpu.INTR & cpu.eflags.IF) {
+		Log("basic block # = %d", tot_tb);
+		cpu.INTR = false;
+		raise_intr(IRQ_TIMER, cpu.eip);
+	}
 
     if (nemu_state != NEMU_RUNNING) {
       if (nemu_state == NEMU_END) {
